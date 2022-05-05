@@ -1,12 +1,13 @@
-using TestGame.UI.Game.Characters;
-
 namespace TestGame.UI
 {
     public partial class Form1 : Form
     {
         private static readonly Bitmap HeroAnimations = Resources.ghost;
 
+        private static List<IRenderable> _entitiesToRender = new();
+
         private Player _player;
+        private Camera _camera;
 
         public Form1()
         {
@@ -19,6 +20,8 @@ namespace TestGame.UI
         private void InitGame()
         {
             _player = new Player(new Position(100, 100), HeroAnimations);
+            _camera = new Camera(_player, ClientSize);
+            _entitiesToRender.Add(_player);
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -36,7 +39,14 @@ namespace TestGame.UI
 
         private void Render(Graphics g)
         {
-            g.DrawImage(_player.GetNextFrame(), _player.Position.X, _player.Position.Y);
+            foreach (var entity in _entitiesToRender)
+            {
+                var position = _camera.ToCameraPosition(entity.Position);
+                g.DrawImage(entity.GetFrame(), position.X, position.Y);
+            }
+
+            var randomPosition = _camera.ToCameraPosition(new Position(200, 200));
+            g.DrawImage(HeroAnimations, randomPosition.X, randomPosition.Y);
         }
 
         private void timer1_Tick(object sender, EventArgs e)

@@ -8,4 +8,6 @@ global using TestGame.UI.Game.Characters;
 global using TestGame.UI.Game.Animations;
 global using TestGame.UI.Game.Positioning;
 global using TestGame.UI.Game.Moving;
+global using TestGame.UI.Rendering;
+
 

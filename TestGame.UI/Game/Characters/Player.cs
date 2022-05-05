@@ -1,9 +1,9 @@
 ﻿namespace TestGame.UI.Game.Characters
 {
-    internal class Player : IAnimated, ILongMovable
+    internal class Player : IWalkable, IRenderable
     {
         private Animation _animation;
-        private readonly ILongMovable _movable;
+        private readonly IWalkable _movable;
 
         public Position Position { get; }
         public MovingInfo Moving { get; }
@@ -18,7 +18,7 @@
             _movable = new PlayerMovingStrategy(Position, Moving);
         }
 
-        public Bitmap GetNextFrame()
+        public Bitmap GetFrame()
         {
             return _animation.GetNextFrame();
         }

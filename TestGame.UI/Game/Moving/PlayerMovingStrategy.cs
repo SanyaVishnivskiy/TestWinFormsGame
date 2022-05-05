@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Moving
 {
-    internal class PlayerMovingStrategy : ILongMovable
+    internal class PlayerMovingStrategy : IWalkable
     {
         private readonly HashSet<MoveDirection> _activeMovings = new();
 

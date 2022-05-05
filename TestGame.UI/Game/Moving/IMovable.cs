@@ -13,7 +13,7 @@
         void Move();
     }
 
-    internal interface ILongMovable : IMovable
+    internal interface IWalkable : IMovable
     {
         void StartMoving(MoveDirection direction);
         void FinishMoving(MoveDirection direction);
