@@ -27,6 +27,8 @@
         public TimeSpan FrameDelay { get; }
         public bool Loop { get; }
 
+        public Bitmap CurrentFrame => frames[_currentFrame];
+
         private void InitFrames()
         {
             for (int i = 0; i < FrameCount; i++)
@@ -68,7 +70,7 @@
                 _playedOnce = true;
             }
 
-            return frames[_currentFrame];
+            return CurrentFrame;
         }
     }
 }

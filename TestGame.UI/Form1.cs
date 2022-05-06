@@ -19,7 +19,7 @@ namespace TestGame.UI
 
         private void InitGame()
         {
-            _player = new Player(new Position(100, 100), HeroAnimations);
+            _player = new Player(new Position(500, 500), HeroAnimations);
             _camera = new Camera(_player, ClientSize);
             _entitiesToRender.Add(_player);
         }
@@ -92,6 +92,11 @@ namespace TestGame.UI
             {
                 _player.FinishMoving(MoveDirection.Right);
             }
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            _camera.ClientSize = ClientSize;
         }
     }
 }
