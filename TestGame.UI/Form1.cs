@@ -2,12 +2,12 @@ namespace TestGame.UI
 {
     public partial class Form1 : Form
     {
-        private static readonly Bitmap HeroAnimations = Resources.ghost;
-
         private static List<IRenderable> _entitiesToRender = new();
 
         private Player _player;
         private Camera _camera;
+        private IMapsProvider _mapsProvider;
+        private IGameMap _map;
 
         public Form1()
         {
@@ -19,7 +19,10 @@ namespace TestGame.UI
 
         private void InitGame()
         {
-            _player = new Player(new Position(500, 500), HeroAnimations);
+            _mapsProvider = new InMemoryMapsProvider();
+            _map = _mapsProvider.GetMapByName("Default");
+
+            _player = new Player(_map.PlayerSpawnPosition);
             _camera = new Camera(_player, ClientSize);
             _entitiesToRender.Add(_player);
         }
@@ -39,14 +42,26 @@ namespace TestGame.UI
 
         private void Render(Graphics g)
         {
-            foreach (var entity in _entitiesToRender)
+            foreach (var groundTile in _map.GetGroundTiles())
             {
-                var position = _camera.ToCameraPosition(entity.Position);
-                g.DrawImage(entity.GetFrame(), position.X, position.Y);
+                DrawDependingOnCamera(g, groundTile);
             }
 
-            var randomPosition = _camera.ToCameraPosition(new Position(200, 200));
-            g.DrawImage(HeroAnimations, randomPosition.X, randomPosition.Y);
+            foreach (var groundTile in _map.GetMapObjects())
+            {
+                DrawDependingOnCamera(g, groundTile);
+            }
+
+            foreach (var entity in _entitiesToRender)
+            {
+                DrawDependingOnCamera(g, entity);
+            }
+        }
+
+        private void DrawDependingOnCamera(Graphics g, IRenderable entity)
+        {
+            var position = _camera.ToCameraPosition(entity.Position);
+            g.DrawImage(entity.GetFrame(), position.X, position.Y);
         }
 
         private void timer1_Tick(object sender, EventArgs e)

@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Positioning
 {
-    internal class Position
+    public class Position
     {
         public Position(float x, float y)
         {
@@ -48,6 +48,11 @@
             }
 
             return (int)X * 346 << (int)Y * 346;
+        }
+
+        public override string ToString()
+        {
+            return $"X: {X} Y: {Y}";
         }
     }
 }

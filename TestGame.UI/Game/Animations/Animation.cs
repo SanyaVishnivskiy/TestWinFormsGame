@@ -72,5 +72,7 @@
 
             return CurrentFrame;
         }
+
+        public static AnimationsBuilder New() => new AnimationsBuilder();
     }
 }

@@ -1,26 +1,17 @@
 ﻿namespace TestGame.UI.Game.Characters
 {
-    internal class Player : IWalkable, IRenderable
+    internal class Player : Entity, IWalkable
     {
         private readonly IWalkable _movable;
 
-        public Animation Animation { get; }
-        public Position Position { get; }
         public MovingInfo Moving { get; }
 
-        public Player(Position position, Bitmap heroAnimations)
+        public Player(Position position) : base(position, EntitiesAnimations.HeroAnimations)
         {
-            Position = position;
-            Animation = new Animation(heroAnimations, new Rectangle(0, 0, 32, 32), 4, 0, TimeSpan.FromMilliseconds(500), true);
             Moving = new MovingInfo {
                 Speed = 20,
             };
             _movable = new PlayerMovingStrategy(Position, Moving);
-        }
-
-        public Bitmap GetFrame()
-        {
-            return Animation.GetNextFrame();
         }
 
         public void Move()
