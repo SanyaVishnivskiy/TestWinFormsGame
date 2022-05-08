@@ -29,6 +29,11 @@ internal class GameMap : IGameMap
 
     private TilesFactory _tilesFactory;
 
+    public GameMap(string name, int[,] groundLayer, Dictionary<Point, int> objectLayer, Point playerSpawnInTiles)
+        : this(name, groundLayer, ConvertObjectsListToMapView(objectLayer, groundLayer.GetLength(0), groundLayer.GetLength(1)), playerSpawnInTiles)
+    {
+    }
+
     public GameMap(string name, int[,] groundLayer, int[,] objectLayer, Point playerSpawnInTiles)
     {
         Name = name;
@@ -59,26 +64,20 @@ internal class GameMap : IGameMap
     private void InitMap()
     {
         var groundLayerWithWater = ExpandLayerWithWaterBorders(_groundLayer);
-        for (int row = 0; row < groundLayerWithWater.GetLength(0); row++)
+        groundLayerWithWater.Loop((row, column) =>
         {
-            for (int column = 0; column < groundLayerWithWater.GetLength(1); column++)
-            {
-                GroundLayer[row, column] = _tilesFactory.CreateGroundTile(
+            GroundLayer[row, column] = _tilesFactory.CreateGroundTile(
                     ConvertTilesToPixels(new Point(column, row)),
                     (TileType)groundLayerWithWater[row, column]);
-            }
-        }
+        });
 
         var objectLayerWithWater = ExpandLayerWithWaterBorders(_objectLayer);
-        for (int row = 0; row < objectLayerWithWater.GetLength(0); row++)
+        objectLayerWithWater.Loop((row, column) =>
         {
-            for (int column = 0; column < objectLayerWithWater.GetLength(1); column++)
-            {
-                ObjectsLayer[row, column] = _tilesFactory.CreateMapObject(
+            ObjectsLayer[row, column] = _tilesFactory.CreateMapObject(
                     ConvertTilesToPixels(new Point(column, row)),
                     (MapObjectType)objectLayerWithWater[row, column]);
-            }
-        }
+        });
     }
 
     private int[,] ExpandLayerWithWaterBorders(int[,] layer)
@@ -87,22 +86,13 @@ internal class GameMap : IGameMap
             CalculateLengthWithWater(Width),
             CalculateLengthWithWater(Height)];
 
-        for (int row = 0; row < layerWithWater.GetLength(0); row++)
-        {
-            for (int column = 0; column < layerWithWater.GetLength(1); column++)
-            {
-                layerWithWater[row, column] = (int)TileType.Water;
-            }
-        }
+        layerWithWater.Fill((int)TileType.Water);
 
-        for (int row = 0; row < layer.GetLength(0); row++)
+        layer.Loop((row, column) =>
         {
-            for (int column = 0; column < layer.GetLength(1); column++)
-            {
-                var originalPosition = CalculateTilePositionWithWaterInTiles(new Point(row, column));
-                layerWithWater[originalPosition.X, originalPosition.Y] = layer[row, column];
-            }
-        }
+            var originalPosition = CalculateTilePositionWithWaterInTiles(new Point(row, column));
+            layerWithWater[originalPosition.X, originalPosition.Y] = layer[row, column];
+        });
 
         return layerWithWater;
     }
@@ -114,26 +104,23 @@ internal class GameMap : IGameMap
 
     public IEnumerable<GroundTile> GetGroundTiles()
     {
-        for (int row = 0; row < GroundLayer.GetLength(0); row++)
-        {
-            for (int column = 0; column < GroundLayer.GetLength(1); column++)
-            {
-                yield return GroundLayer[row, column];
-            }
-        }
+        return GroundLayer.Traverse();
     }
     
     public IEnumerable<MapObject> GetMapObjects()
     {
-        for (int row = 0; row < ObjectsLayer.GetLength(0); row++)
+        return ObjectsLayer.TraverseWithFilter((row, column) => ObjectsLayer[row, column] is not null)!;
+    }
+
+    private static int[,] ConvertObjectsListToMapView(Dictionary<Point, int> objectLayer, int width, int height)
+    {
+        var objectLayerView = new int[width, height];
+
+        foreach (var obj in objectLayer)
         {
-            for (int column = 0; column < ObjectsLayer.GetLength(1); column++)
-            {
-                if (ObjectsLayer[row, column] is not null)
-                {
-                    yield return ObjectsLayer[row, column]!;
-                }
-            }
+            objectLayerView[obj.Key.X, obj.Key.Y] = obj.Value;
         }
+
+        return objectLayerView;
     }
 }

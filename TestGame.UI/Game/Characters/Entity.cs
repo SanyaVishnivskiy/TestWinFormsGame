@@ -1,19 +1,18 @@
-﻿namespace TestGame.UI.Game.Characters
+﻿namespace TestGame.UI.Game.Characters;
+
+internal class Entity : IRenderable
 {
-    internal class Entity : IRenderable
+    public Entity(Position position, Animation animation)
     {
-        public Entity(Position position, Animation animation)
-        {
-            Position = position;
-            Animation = animation;
-        }
+        Position = position;
+        Animation = animation;
+    }
 
-        public Position Position { get; }
-        public Animation Animation { get; }
+    public Position Position { get; }
+    public Animation Animation { get; }
 
-        public Bitmap GetTexture()
-        {
-            return Animation.GetNextFrame();
-        }
+    public Bitmap GetTexture()
+    {
+        return Animation.GetNextFrame();
     }
 }

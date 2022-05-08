@@ -1,68 +1,50 @@
-﻿namespace TestGame.UI.Game.World
+﻿namespace TestGame.UI.Game.World;
+
+public interface IMapsProvider
 {
-    public interface IMapsProvider
+    string[] GetMapNames();
+    IGameMap GetMapByName(string name);
+}
+
+internal class InMemoryMapsProvider : IMapsProvider
+{
+    private static readonly Dictionary<string, GameMap> _maps = new List<GameMap> {
+        new GameMap(
+            "Default",
+            new int [,] {
+                { 2, 2, 2, 2, 2, 2, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 0, 1, 2 },
+                { 1, 1, 1, 1, 0, 1, 2 },
+                { 0, 0, 0, 0, 0, 1, 2 },
+                { 1, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 1, 1, 1, 1, 1, 2 },
+                { 2, 2, 2, 2, 2, 2, 2 },
+            },
+            new Dictionary<Point, int>(),
+            new Point(3, 7)
+        )
+    }.ToDictionary(x => x.Name);
+
+    public string[] GetMapNames()
     {
-        string[] GetMapNames();
-        IGameMap GetMapByName(string name);
+        return _maps.Keys.ToArray();
     }
 
-    internal class InMemoryMapsProvider : IMapsProvider
+    public IGameMap GetMapByName(string name)
     {
-        private static readonly Dictionary<string, GameMap> _maps = new List<GameMap> {
-            new GameMap(
-                "Default",
-                new int [,] {
-                    { 2, 2, 2, 2, 2, 2, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 1, 1, 1, 1, 1, 2 },
-                    { 2, 2, 2, 2, 2, 2, 2 },
-                },
-                new int [,]
-                {
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                },
-                new Point(3, 7)
-            )
-        }.ToDictionary(x => x.Name);
-
-        public string[] GetMapNames()
+        if (_maps.TryGetValue(name, out var map))
         {
-            return _maps.Keys.ToArray();
+            return map;
         }
 
-        public IGameMap GetMapByName(string name)
-        {
-            if (_maps.TryGetValue(name, out var map))
-            {
-                return map;
-            }
-
-            throw new ArgumentException("Unknown map");
-        }
+        throw new ArgumentException("Unknown map");
     }
 }

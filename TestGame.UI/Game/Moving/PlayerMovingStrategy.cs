@@ -1,59 +1,58 @@
-﻿namespace TestGame.UI.Game.Moving
+﻿namespace TestGame.UI.Game.Moving;
+
+internal class PlayerMovingStrategy : IWalkable
 {
-    internal class PlayerMovingStrategy : IWalkable
+    private readonly HashSet<MoveDirection> _activeMovings = new();
+
+    public Position CurrentPosition { get; }
+    public MovingInfo Moving { get; }
+
+    public PlayerMovingStrategy(Position currentPosition, MovingInfo movingInfo)
     {
-        private readonly HashSet<MoveDirection> _activeMovings = new();
+        CurrentPosition = currentPosition;
+        Moving = movingInfo;
+    }
 
-        public Position CurrentPosition { get; }
-        public MovingInfo Moving { get; }
+    public void FinishMoving(MoveDirection direction)
+    {
+        _activeMovings.Remove(direction);
+    }
 
-        public PlayerMovingStrategy(Position currentPosition, MovingInfo movingInfo)
+    public void StartMoving(MoveDirection direction)
+    {
+        _activeMovings.Add(direction);
+    }
+
+    public void Move()
+    {
+        if (_activeMovings.Contains(MoveDirection.Left))
         {
-            CurrentPosition = currentPosition;
-            Moving = movingInfo;
+            CurrentPosition.AddX(-Moving.Speed);
+        }
+        
+        if (_activeMovings.Contains(MoveDirection.Right))
+        {
+            CurrentPosition.AddX(Moving.Speed);
         }
 
-        public void FinishMoving(MoveDirection direction)
+        if (_activeMovings.Contains(MoveDirection.Up))
         {
-            _activeMovings.Remove(direction);
+            CurrentPosition.AddY(-Moving.Speed);
         }
 
-        public void StartMoving(MoveDirection direction)
+        if (_activeMovings.Contains(MoveDirection.Down))
         {
-            _activeMovings.Add(direction);
-        }
-
-        public void Move()
-        {
-            if (_activeMovings.Contains(MoveDirection.Left))
-            {
-                CurrentPosition.AddX(-Moving.Speed);
-            }
-            
-            if (_activeMovings.Contains(MoveDirection.Right))
-            {
-                CurrentPosition.AddX(Moving.Speed);
-            }
-
-            if (_activeMovings.Contains(MoveDirection.Up))
-            {
-                CurrentPosition.AddY(-Moving.Speed);
-            }
-
-            if (_activeMovings.Contains(MoveDirection.Down))
-            {
-                CurrentPosition.AddY(Moving.Speed);
-            }
+            CurrentPosition.AddY(Moving.Speed);
         }
     }
-    
-    public class MovingInfo
+}
+
+public class MovingInfo
+{
+    private float _speed;
+    public float Speed
     {
-        private float _speed;
-        public float Speed
-        {
-            get => _speed * Constants.GameSpeed;
-            set => _speed = value;
-        }
+        get => _speed * Constants.GameSpeed;
+        set => _speed = value;
     }
 }
