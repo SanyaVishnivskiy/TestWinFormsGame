@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Animations
 {
-    internal class Animation
+    public class Animation
     {
         private readonly List<Bitmap> frames = new();
 

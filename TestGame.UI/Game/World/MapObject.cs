@@ -1,37 +1,24 @@
 ﻿namespace TestGame.UI.Game.World
 {
-    public class MapObject : IRenderable
+    public abstract class MapObject : IRenderable
     {
-        public MapObject(Position position, MapObjectType type)
+        public MapObject(Position position)
         {
             Position = position;
-            Type = type;
         }
 
-        public Position Position { get; set; }
-        public MapObjectType Type { get; }
+        public Position Position { get; }
+        public abstract MapObjectType Type { get; }
+        public abstract Animation Animation { get; }
 
-        public Bitmap GetFrame()
+        public Bitmap GetTexture()
         {
-            return MapObjectTextureMap.GetTexture(Type);
+            return Animation.GetNextFrame();
         }
     }
 
     public enum MapObjectType
     {
         None = 0,
-    }
-
-
-    internal class MapObjectTextureMap
-    {
-        public static Dictionary<MapObjectType, Bitmap> _tileTypeTextureMap = new()
-        {
-        };
-
-        public static Bitmap GetTexture(MapObjectType type)
-        {
-            return _tileTypeTextureMap[type];
-        }
     }
 }

@@ -11,7 +11,7 @@
         public Position Position { get; }
         public Animation Animation { get; }
 
-        public Bitmap GetFrame()
+        public Bitmap GetTexture()
         {
             return Animation.GetNextFrame();
         }

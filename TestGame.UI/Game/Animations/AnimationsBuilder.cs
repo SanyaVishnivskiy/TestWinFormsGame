@@ -1,12 +1,12 @@
 ﻿namespace TestGame.UI.Game.Animations
 {
-    internal class AnimationsBuilder
+    public class AnimationsBuilder
     {
         private Bitmap? _sprites;
-        private Rectangle _firstFrame;
+        private Rectangle _firstFrame = new Rectangle(0, 0, Constants.TileWidth, Constants.TileHeight);
         private int _frameCount = 1;
         private int _frameOffset;
-        private TimeSpan _frameDelay;
+        private TimeSpan _frameDelay = TimeSpan.FromMilliseconds(500);
         private bool _loop;
 
         public AnimationsBuilder FromSprite(Bitmap sprites)

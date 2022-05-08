@@ -1,21 +1,20 @@
 ﻿namespace TestGame.UI.Game.World
 {
-    public class Tile : IRenderable
+    public abstract class Tile : IRenderable
     {
-        public Tile(Position position, GroundTileType type)
+        public Tile(Position position)
         {
             Position = position;
-            Type = type;
         }
 
         public Position Position { get; }
-        public GroundTileType Type { get; }
+        public abstract TileType Type { get; }
+        public abstract Animation Animation { get; }
 
-        public virtual Bitmap GetFrame()
+        public Bitmap GetTexture()
         {
-            var texture = TileTypeTextureMap.GetTexture(Type);
-            var result = new Bitmap(texture, new Size(Constants.TileWidth, Constants.TileHeight));
-            return result;
+            var texture = Animation.GetNextFrame();
+            return new Bitmap(texture, new Size(Constants.TileWidth, Constants.TileHeight));
         }
 
         public override string ToString()

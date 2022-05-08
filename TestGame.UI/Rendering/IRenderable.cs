@@ -4,6 +4,6 @@
     {
         Position Position { get; }
 
-        Bitmap GetFrame();
+        Bitmap GetTexture();
     }
 }

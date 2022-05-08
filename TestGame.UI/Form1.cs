@@ -61,7 +61,7 @@ namespace TestGame.UI
         private void DrawDependingOnCamera(Graphics g, IRenderable entity)
         {
             var position = _camera.ToCameraPosition(entity.Position);
-            g.DrawImage(entity.GetFrame(), position.X, position.Y);
+            g.DrawImage(entity.GetTexture(), position.X, position.Y);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
