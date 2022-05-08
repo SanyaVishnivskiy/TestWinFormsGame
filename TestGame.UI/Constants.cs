@@ -6,5 +6,7 @@
 
         public const int TileWidth = 32;
         public const int TileHeight = 32;
+
+        public const int WaterBorderSizeInTiles = 5;
     }
 }

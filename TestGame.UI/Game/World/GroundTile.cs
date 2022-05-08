@@ -9,6 +9,7 @@
 
     public enum GroundTileType
     {
+        Water = 0,
         Dirt = 1,
         Grass = 2,
     }
@@ -19,6 +20,7 @@
         {
             { GroundTileType.Dirt, Textures.Dirt },
             { GroundTileType.Grass, Textures.Grass },
+            { GroundTileType.Water, Textures.Water },
         };
         
         public static Bitmap GetTexture(GroundTileType type)

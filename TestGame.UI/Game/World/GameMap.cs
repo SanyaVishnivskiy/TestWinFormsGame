@@ -36,11 +36,15 @@
 
             _groundLayer = groundLayer;
             _objectLayer = objectLayer;
-            PlayerSpawnInTiles = playerSpawnInTiles;
-            PlayerSpawnPosition = ConvertTilesToPixels(playerSpawnInTiles);
+            PlayerSpawnInTiles = CalculateTilePositionWithWaterInTiles(playerSpawnInTiles);
+            PlayerSpawnPosition = ConvertTilesToPixels(PlayerSpawnInTiles);
 
-            GroundLayer = new GroundTile[Width, Height];
-            ObjectsLayer = new MapObject[Width, Height];
+            GroundLayer = new GroundTile[
+                CalculateLengthWithWater(Width),
+                CalculateLengthWithWater(Height)];
+            ObjectsLayer = new MapObject[
+                CalculateLengthWithWater(Width),
+                CalculateLengthWithWater(Height)];
             InitMap();
         }
 
@@ -51,26 +55,59 @@
 
         private void InitMap()
         {
-            for (int row = 0; row < _groundLayer.GetLength(0); row++)
+            var groundLayerWithWater = ExpandLayerWithWaterBorders(_groundLayer);
+            for (int row = 0; row < groundLayerWithWater.GetLength(0); row++)
             {
-                for (int column = 0; column < _groundLayer.GetLength(1); column++)
+                for (int column = 0; column < groundLayerWithWater.GetLength(1); column++)
                 {
                     GroundLayer[row, column] = new GroundTile(
                         ConvertTilesToPixels(new Point(column, row)),
-                        (GroundTileType)_groundLayer[row, column]);
+                        (GroundTileType)groundLayerWithWater[row, column]);
                 }
             }
 
-            for (int row = 0; row < _objectLayer.GetLength(0); row++)
+            var objectLayerWithWater = ExpandLayerWithWaterBorders(_objectLayer);
+            for (int row = 0; row < objectLayerWithWater.GetLength(0); row++)
             {
-                for (int column = 0; column < _objectLayer.GetLength(1); column++)
+                for (int column = 0; column < objectLayerWithWater.GetLength(1); column++)
                 {
                     ObjectsLayer[row, column] = new MapObject(
                         ConvertTilesToPixels(new Point(column, row)),
-                        (MapObjectType)_objectLayer[row, column]);
+                        (MapObjectType)objectLayerWithWater[row, column]);
                 }
             }
         }
+
+        private int[,] ExpandLayerWithWaterBorders(int[,] layer)
+        {
+            var layerWithWater = new int[
+                CalculateLengthWithWater(Width),
+                CalculateLengthWithWater(Height)];
+
+            for (int row = 0; row < layerWithWater.GetLength(0); row++)
+            {
+                for (int column = 0; column < layerWithWater.GetLength(1); column++)
+                {
+                    layerWithWater[row, column] = (int)GroundTileType.Water;
+                }
+            }
+
+            for (int row = 0; row < layer.GetLength(0); row++)
+            {
+                for (int column = 0; column < layer.GetLength(1); column++)
+                {
+                    var originalPosition = CalculateTilePositionWithWaterInTiles(new Point(row, column));
+                    layerWithWater[originalPosition.X, originalPosition.Y] = layer[row, column];
+                }
+            }
+
+            return layerWithWater;
+        }
+
+        private int CalculateLengthWithWater(int mapLength) => mapLength + 2 * Constants.WaterBorderSizeInTiles;
+
+        private Point CalculateTilePositionWithWaterInTiles(Point point) =>
+            new Point(point.X + Constants.WaterBorderSizeInTiles, point.Y + Constants.WaterBorderSizeInTiles);
 
         public IEnumerable<GroundTile> GetGroundTiles()
         {
@@ -85,9 +122,9 @@
         
         public IEnumerable<MapObject> GetMapObjects()
         {
-            for (int row = 0; row < GroundLayer.GetLength(0); row++)
+            for (int row = 0; row < ObjectsLayer.GetLength(0); row++)
             {
-                for (int column = 0; column < GroundLayer.GetLength(1); column++)
+                for (int column = 0; column < ObjectsLayer.GetLength(1); column++)
                 {
                     if (ObjectsLayer[row, column].Type != MapObjectType.None)
                     {
