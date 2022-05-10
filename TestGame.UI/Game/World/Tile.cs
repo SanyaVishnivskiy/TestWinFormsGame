@@ -7,14 +7,16 @@
             Position = position;
         }
 
+        public virtual int Width => Constants.TileWidth;
+        public virtual int Height => Constants.TileHeight;
+
         public Position Position { get; }
         public abstract TileType Type { get; }
         public abstract Animation Animation { get; }
 
         public Bitmap GetTexture()
         {
-            var texture = Animation.GetNextFrame();
-            return new Bitmap(texture, new Size(Constants.TileWidth, Constants.TileHeight));
+            return Animation.GetNextFrame();
         }
 
         public override string ToString()

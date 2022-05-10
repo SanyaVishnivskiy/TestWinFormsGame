@@ -3,6 +3,7 @@ namespace TestGame.UI;
 public partial class Form1 : Form
 {
     private IReadOnlyList<IRenderable> _entitiesToRender;
+    private Dictionary<Bitmap, Bitmap> _bitmapsCache = new();
 
     private static GameState _state => GameState.Instance;
     private Player _player => _state.Player;
@@ -22,7 +23,7 @@ public partial class Form1 : Form
     {
         _state.Init(ClientSize);
         _movingEngine = new MovingEngine();
-        
+
         _state.OnAllGameEntitiesChange += OnEntitiesListChange;
         OnEntitiesListChange(this, new GameEntitiesChangeEventArgs(_state.AllGameEntities));
     }
@@ -66,7 +67,24 @@ public partial class Form1 : Form
     private void DrawDependingOnCamera(Graphics g, IRenderable entity)
     {
         var position = _state.Camera.ToCameraPosition(entity.Position);
-        g.DrawImage(entity.GetTexture(), position.X, position.Y);
+        var texture = GetTexture(entity);
+        g.DrawImage(texture, position.X, position.Y);
+    }
+
+    private Bitmap GetTexture(IRenderable entity)
+    {
+        var texture = entity.GetTexture();
+
+        if (_bitmapsCache.TryGetValue(texture, out var cachedTexture))
+        {
+            return cachedTexture;
+        }
+
+        var result = new Bitmap(texture, new Size(entity.Width, entity.Height));
+
+        _bitmapsCache.Add(texture, result);
+
+        return result;
     }
 
     private void timer1_Tick(object sender, EventArgs e)

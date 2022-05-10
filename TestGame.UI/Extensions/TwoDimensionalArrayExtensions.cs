@@ -48,9 +48,4 @@ public static class TwoDimensionalArrayExtensions
             }
         }
     }
-
-    private static void Loop(Action<int, int> action)
-    {
-
-    }
 }
