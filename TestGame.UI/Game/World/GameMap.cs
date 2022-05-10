@@ -10,6 +10,7 @@ public interface IGameMap
 
     IEnumerable<GroundTile> GetGroundTiles();
     IEnumerable<MapObject> GetMapObjects();
+    GroundTile GetGroundTile(int x, int y);
 }
 
 internal class GameMap : IGameMap
@@ -56,10 +57,7 @@ internal class GameMap : IGameMap
         InitMap();
     }
 
-    private Position ConvertTilesToPixels(Point tile)
-    {
-        return new Position(tile.X * Constants.TileWidth, tile.Y * Constants.TileHeight);
-    }
+    private Position ConvertTilesToPixels(Point tile) => TileToPositionConverter.ConvertTilesToPosition(tile);
 
     private void InitMap()
     {
@@ -122,5 +120,10 @@ internal class GameMap : IGameMap
         }
 
         return objectLayerView;
+    }
+
+    public GroundTile GetGroundTile(int x, int y)
+    {
+        return GroundLayer[x, y];
     }
 }

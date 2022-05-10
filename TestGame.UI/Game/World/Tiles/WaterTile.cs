@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.World.Tiles;
 
-internal class WaterTile : GroundTile
+internal class WaterTile : GroundTile, ICollidable
 {
     public WaterTile(Position position) : base(position)
     {
@@ -11,10 +11,19 @@ internal class WaterTile : GroundTile
             .WithFrameDelay(TimeSpan.FromMilliseconds(800))
             .Looped()
             .Build();
+
+        Hitbox = new RectangleF(Position.X, Position.Y, Constants.TileWidth, Constants.TileHeight);
     }
 
 
     public override TileType Type => TileType.Water;
 
     public override Animation Animation { get; }
+
+    public RectangleF Hitbox { get; }
+
+    public void OnCollision(ICollidable other)
+    {
+        throw new NotImplementedException();
+    }
 }

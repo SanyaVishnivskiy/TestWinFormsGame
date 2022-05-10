@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Rendering
 {
-    internal interface IRenderable
+    public interface IRenderable
     {
         Position Position { get; }
 

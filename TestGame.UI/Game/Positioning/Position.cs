@@ -40,6 +40,11 @@
             return false;
         }
 
+        public Position Clone()
+        {
+            return new Position(X, Y);
+        }
+
         public override int GetHashCode()
         {
             if (this is null)

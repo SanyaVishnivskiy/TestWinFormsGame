@@ -1,117 +1,121 @@
-namespace TestGame.UI
+namespace TestGame.UI;
+
+public partial class Form1 : Form
 {
-    public partial class Form1 : Form
+    private IReadOnlyList<IRenderable> _entitiesToRender;
+
+    private static GameState _state => GameState.Instance;
+    private Player _player => _state.Player;
+
+    private MovingEngine _movingEngine;
+
+
+    public Form1()
     {
-        private static List<IRenderable> _entitiesToRender = new();
+        InitializeComponent();
 
-        private Player _player;
-        private Camera _camera;
-        private IMapsProvider _mapsProvider;
-        private IGameMap _map;
+        SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+        InitGame();
+    }
 
-        public Form1()
+    private void InitGame()
+    {
+        _state.Init(ClientSize);
+        _movingEngine = new MovingEngine();
+        
+        _state.OnAllGameEntitiesChange += OnEntitiesListChange;
+        OnEntitiesListChange(this, new GameEntitiesChangeEventArgs(_state.AllGameEntities));
+    }
+
+    private void OnEntitiesListChange(object? sender, GameEntitiesChangeEventArgs e)
+    {
+        _entitiesToRender = e.Entities.OfType<IRenderable>().ToList();
+    }
+
+    private void Form1_Paint(object sender, PaintEventArgs e)
+    {
+        Graphics g = e.Graphics;
+
+        DoMoves();
+        Render(g);
+    }
+
+    private void DoMoves()
+    {
+        _movingEngine.Move();
+    }
+
+    private void Render(Graphics g)
+    {
+        foreach (var groundTile in _state.Map.GetGroundTiles())
         {
-            InitializeComponent();
-
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            InitGame();
+            DrawDependingOnCamera(g, groundTile);
         }
 
-        private void InitGame()
+        foreach (var groundTile in _state.Map.GetMapObjects())
         {
-            _mapsProvider = new InMemoryMapsProvider();
-            _map = _mapsProvider.GetMapByName("Default");
-
-            _player = new Player(_map.PlayerSpawnPosition);
-            _camera = new Camera(_player, ClientSize);
-            _entitiesToRender.Add(_player);
+            DrawDependingOnCamera(g, groundTile);
         }
 
-        private void Form1_Paint(object sender, PaintEventArgs e)
+        foreach (var entity in _entitiesToRender)
         {
-            Graphics g = e.Graphics;
-
-            DoMoves();
-            Render(g);
+            DrawDependingOnCamera(g, entity);
         }
+    }
 
-        private void DoMoves()
+    private void DrawDependingOnCamera(Graphics g, IRenderable entity)
+    {
+        var position = _state.Camera.ToCameraPosition(entity.Position);
+        g.DrawImage(entity.GetTexture(), position.X, position.Y);
+    }
+
+    private void timer1_Tick(object sender, EventArgs e)
+    {
+        Refresh();
+    }
+
+    private void Form1_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.W)
         {
-            _player.Move();
+            _player.StartMoving(MoveDirection.Up);
         }
-
-        private void Render(Graphics g)
+        if (e.KeyCode == Keys.S)
         {
-            foreach (var groundTile in _map.GetGroundTiles())
-            {
-                DrawDependingOnCamera(g, groundTile);
-            }
-
-            foreach (var groundTile in _map.GetMapObjects())
-            {
-                DrawDependingOnCamera(g, groundTile);
-            }
-
-            foreach (var entity in _entitiesToRender)
-            {
-                DrawDependingOnCamera(g, entity);
-            }
+            _player.StartMoving(MoveDirection.Down);
         }
-
-        private void DrawDependingOnCamera(Graphics g, IRenderable entity)
+        if (e.KeyCode == Keys.A)
         {
-            var position = _camera.ToCameraPosition(entity.Position);
-            g.DrawImage(entity.GetTexture(), position.X, position.Y);
+            _player.StartMoving(MoveDirection.Left);
         }
-
-        private void timer1_Tick(object sender, EventArgs e)
+        if (e.KeyCode == Keys.D)
         {
-            Refresh();
+            _player.StartMoving(MoveDirection.Right);
         }
+    }
 
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+    private void Form1_KeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.W)
         {
-            if (e.KeyCode == Keys.W)
-            {
-                _player.StartMoving(MoveDirection.Up);
-            }
-            if (e.KeyCode == Keys.S)
-            {
-                _player.StartMoving(MoveDirection.Down);
-            }
-            if (e.KeyCode == Keys.A)
-            {
-                _player.StartMoving(MoveDirection.Left);
-            }
-            if (e.KeyCode == Keys.D)
-            {
-                _player.StartMoving(MoveDirection.Right);
-            }
+            _player.FinishMoving(MoveDirection.Up);
         }
+        if (e.KeyCode == Keys.S)
+        {
+            _player.FinishMoving(MoveDirection.Down);
+        }
+        if (e.KeyCode == Keys.A)
+        {
+            _player.FinishMoving(MoveDirection.Left);
+        }
+        if (e.KeyCode == Keys.D)
+        {
+            _player.FinishMoving(MoveDirection.Right);
+        }
+    }
 
-        private void Form1_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.W)
-            {
-                _player.FinishMoving(MoveDirection.Up);
-            }
-            if (e.KeyCode == Keys.S)
-            {
-                _player.FinishMoving(MoveDirection.Down);
-            }
-            if (e.KeyCode == Keys.A)
-            {
-                _player.FinishMoving(MoveDirection.Left);
-            }
-            if (e.KeyCode == Keys.D)
-            {
-                _player.FinishMoving(MoveDirection.Right);
-            }
-        }
-
-        private void Form1_Resize(object sender, EventArgs e)
-        {
-            _camera.ClientSize = ClientSize;
-        }
+    private void Form1_Resize(object sender, EventArgs e)
+    {
+        _state.Camera.ClientSize = ClientSize;
     }
 }

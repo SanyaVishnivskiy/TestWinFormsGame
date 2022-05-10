@@ -2,7 +2,8 @@
 
 internal class PlayerMovingStrategy : IWalkable
 {
-    private readonly HashSet<MoveDirection> _activeMovings = new();
+    private readonly Direction _direction = new();
+    private readonly HashSet<MoveDirection> _deniedMovings = new(4);
 
     public Position CurrentPosition { get; }
     public MovingInfo Moving { get; }
@@ -15,35 +16,55 @@ internal class PlayerMovingStrategy : IWalkable
 
     public void FinishMoving(MoveDirection direction)
     {
-        _activeMovings.Remove(direction);
+        _direction.Remove(direction);
     }
 
     public void StartMoving(MoveDirection direction)
     {
-        _activeMovings.Add(direction);
+        _direction.Add(direction);
+    }
+
+    public Position GetNewMove()
+    {
+        var position = CurrentPosition.Clone();
+        MovePosition(position);
+        return position;
     }
 
     public void Move()
     {
-        if (_activeMovings.Contains(MoveDirection.Left))
+        MovePosition(CurrentPosition);
+        _deniedMovings.Clear();
+    }
+
+    private void MovePosition(Position position)
+    {
+        var allowedMovings = _direction.Directions.Except(_deniedMovings);
+
+        if (allowedMovings.Contains(MoveDirection.Left))
         {
-            CurrentPosition.AddX(-Moving.Speed);
-        }
-        
-        if (_activeMovings.Contains(MoveDirection.Right))
-        {
-            CurrentPosition.AddX(Moving.Speed);
+            position.AddX(-Moving.Speed);
         }
 
-        if (_activeMovings.Contains(MoveDirection.Up))
+        if (allowedMovings.Contains(MoveDirection.Right))
         {
-            CurrentPosition.AddY(-Moving.Speed);
+            position.AddX(Moving.Speed);
         }
 
-        if (_activeMovings.Contains(MoveDirection.Down))
+        if (allowedMovings.Contains(MoveDirection.Up))
         {
-            CurrentPosition.AddY(Moving.Speed);
+            position.AddY(-Moving.Speed);
         }
+
+        if (allowedMovings.Contains(MoveDirection.Down))
+        {
+            position.AddY(Moving.Speed);
+        }
+    }
+
+    public void DenyMoveToDirectionOnce(MoveDirection direction)
+    {
+        _deniedMovings.Add(direction);
     }
 }
 

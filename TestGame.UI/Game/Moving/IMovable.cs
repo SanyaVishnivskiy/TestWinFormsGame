@@ -2,18 +2,21 @@
 {
     public enum MoveDirection
     {
+        None,
         Up,
         Down,
         Left,
         Right
     }
 
-    internal interface IMovable
+    public interface IMovable
     {
+        Position GetNewMove();
+        void DenyMoveToDirectionOnce(MoveDirection direction);
         void Move();
     }
 
-    internal interface IWalkable : IMovable
+    public interface IWalkable : IMovable
     {
         void StartMoving(MoveDirection direction);
         void FinishMoving(MoveDirection direction);
