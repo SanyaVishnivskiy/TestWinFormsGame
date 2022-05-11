@@ -11,6 +11,7 @@
 
     public interface IMovable
     {
+        Position CurrentPosition { get; }
         Position GetNewMove();
         void DenyMoveToDirectionOnce(MoveDirection direction);
         void Move();

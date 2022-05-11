@@ -5,6 +5,7 @@ internal class Player : Entity, IWalkable, ICollidable
     private readonly IWalkable _movable;
 
     public MovingInfo Moving { get; }
+    public Position CurrentPosition => Position;
 
     public RectangleF Hitbox => new RectangleF(Position.X, Position.Y, Animation.CurrentFrame.Width, Animation.CurrentFrame.Height);
 

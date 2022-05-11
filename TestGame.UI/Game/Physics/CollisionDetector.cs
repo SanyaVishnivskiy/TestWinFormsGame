@@ -22,10 +22,11 @@ public class CollisionDetector
             GroundTile tile = tiles[row, column];
             if (tile != null && tile is ICollidable collidableTile)
             {
-                (var collides, var collistionDirections) = CheckCollides(collidable, collidableTile, direction);
+                (var collides, var collisionDirections) = CheckCollides(collidable, collidableTile, direction);
                 if (collides)
                 {
-                    collisions.Add(new Collision(collidable, collidableTile, collistionDirections));
+                    var tileCollisions = collisionDirections.Select(x => new Collision(collidable, collidableTile, x));
+                    collisions.AddRange(tileCollisions);
                 }
             }
         });
@@ -56,38 +57,36 @@ public class CollisionDetector
         return !rectangle.IsEmpty;
     }
 
-    private (bool, Direction) CheckCollides(
+    private (bool, List<Direction>) CheckCollides(
         OverridenCollidableAdapter collidable,
         ICollidable anotherCollidable,
         Direction direction)
     {
         if (!CheckHitboxesCollides(collidable.NewHitbox, anotherCollidable.Hitbox))
         {
-            return (false, new Direction());
+            return (false, new List<Direction>());
         }
 
-        var resultDirection = new Direction();
-        if (CheckCollisionToDirection(collidable, anotherCollidable, direction.Horizontal))
+        var resultDirections = new List<Direction>() { direction };
+        if (!direction.IsDiagonal)
         {
-            resultDirection.Add(direction.Horizontal);
+            return (true, resultDirections);
         }
 
-        if (CheckCollisionToDirection(collidable, anotherCollidable, direction.Vertical))
+        if (CheckCollisionOnDirection(collidable, anotherCollidable, direction.Horizontal))
         {
-            resultDirection.Add(direction.Vertical);
+            resultDirections.Add(new Direction(direction.Horizontal));
         }
 
-        if (resultDirection.Directions.Count == 2)
+        if (CheckCollisionOnDirection(collidable, anotherCollidable, direction.Vertical))
         {
-            // above we checked that we cannot move in diagonal direction
-            // so if we have still both, give priority to horizontal movement
-            resultDirection.Remove(resultDirection.Horizontal);
+            resultDirections.Add(new Direction(direction.Vertical));
         }
 
-        return (true, resultDirection);
+        return (true, resultDirections);
     }
 
-    public bool CheckCollisionToDirection(
+    public bool CheckCollisionOnDirection(
         OverridenCollidableAdapter collidable,
         ICollidable anotherCollidable,
         MoveDirection direction)
