@@ -2,7 +2,7 @@
 
 internal class PlayerMovingStrategy : IWalkable
 {
-    private readonly Direction _direction = new();
+    private readonly HashSet<MoveDirection> _activeMovings = new(4);
     private readonly HashSet<MoveDirection> _deniedMovings = new(4);
 
     public Position CurrentPosition { get; }
@@ -16,12 +16,12 @@ internal class PlayerMovingStrategy : IWalkable
 
     public void FinishMoving(MoveDirection direction)
     {
-        _direction.Remove(direction);
+        _activeMovings.Remove(direction);
     }
 
     public void StartMoving(MoveDirection direction)
     {
-        _direction.Add(direction);
+        _activeMovings.Add(direction);
     }
 
     public Position GetNewMove()
@@ -34,12 +34,15 @@ internal class PlayerMovingStrategy : IWalkable
     public void Move()
     {
         MovePosition(CurrentPosition);
+
+        Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}, denied: {string.Join(", ", _deniedMovings)}");
+
         _deniedMovings.Clear();
     }
 
     private void MovePosition(Position position)
     {
-        var allowedMovings = _direction.Directions.Except(_deniedMovings);
+        var allowedMovings = _activeMovings.Except(_deniedMovings);
 
         if (allowedMovings.Contains(MoveDirection.Left))
         {

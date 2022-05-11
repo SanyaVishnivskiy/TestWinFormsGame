@@ -11,4 +11,4 @@ global using TestGame.UI.Game.World;
 global using TestGame.UI.Rendering;
 global using TestGame.UI.Game.Physics;
 global using TestGame.UI.Game;
-
+global using TestGame.UI.Common;

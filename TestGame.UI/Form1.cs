@@ -10,13 +10,23 @@ public partial class Form1 : Form
 
     private MovingEngine _movingEngine;
 
+    private Debugger _debuggerWindow;
 
     public Form1()
     {
         InitializeComponent();
 
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+        StartDebugger();
         InitGame();
+    }
+
+    private void StartDebugger()
+    {
+        _debuggerWindow = new Debugger();
+        _debuggerWindow.Show();
+
+        Logger.AddDestination(_debuggerWindow);
     }
 
     private void InitGame()
@@ -136,4 +146,23 @@ public partial class Form1 : Form
     {
         _state.Camera.ClientSize = ClientSize;
     }
+
+    /// <summary>
+    ///  Clean up any resources being used.
+    /// </summary>
+    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (components != null)
+            {
+                components.Dispose();
+            }
+
+            _debuggerWindow?.Close();
+        }
+        base.Dispose(disposing);
+    }
+
 }
