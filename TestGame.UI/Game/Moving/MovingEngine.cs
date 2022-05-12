@@ -36,22 +36,23 @@ public class MovingEngine : IDisposable
 
             if (movable is ICollidable collidable)
             {
-                DenyBlockedDirections(movable, collidable, newPosition);
+                AdjustBlockedDirections(movable, collidable, newPosition);
             }
 
             movable.Move();
         }
     }
 
-    private void DenyBlockedDirections(IMovable movable, ICollidable collidable, Position newPosition)
+    private void AdjustBlockedDirections(IMovable movable, ICollidable collidable, Position newPosition)
     {
         var collisions = _collisionDetector.CalculateCollisionsWithMap(collidable, movable.GetNewMove());
         var deniedDirections = ConvertCollisionsToDeniedDirections(
             collisions,
             WasDiagonalMove(movable.CurrentPosition, newPosition));
-        foreach (var directionToDeny in deniedDirections)
+        var adjustedMoves = AdjustMoves(collisions, deniedDirections);
+        foreach (var adjustedMove in adjustedMoves)
         {
-            movable.DenyMoveToDirectionOnce(directionToDeny);
+            movable.AdjustMovementOnce(adjustedMove);
         }
     }
 
@@ -106,6 +107,46 @@ public class MovingEngine : IDisposable
         }
 
         return result;
+    }
+
+    private List<MoveAdjustment> AdjustMoves(List<Collision> collisions, HashSet<MoveDirection> deniedDirections)
+    {
+        var oneDirectionCollision = collisions
+            .SelectMany(x =>
+            {
+                if (x.Direction.IsDiagonal)
+                {
+                    return new[] {
+                        new Collision(x.Entity, x.AnotherEntity, new Direction(x.Direction.Horizontal)),
+                        new Collision(x.Entity, x.AnotherEntity, new Direction(x.Direction.Vertical))
+                    };
+                }
+                return new[] { x };
+            });
+
+        var distancesByDirection = CalculateDistancesByDirection(
+            oneDirectionCollision.Where(x => x.Direction.Directions.Any(d => deniedDirections.Contains(d))));
+
+        return distancesByDirection
+            .Select(x => new MoveAdjustment(x.Key, x.Value.Max()))
+            .ToList();
+    }
+
+    private Dictionary<MoveDirection, HashSet<float>> CalculateDistancesByDirection(IEnumerable<Collision> collisions)
+    {
+        return collisions
+            .SelectMany(x => x.Direction.Directions
+                .Select(d => new {
+                    Direction = d,
+                    Distance = CalculateDistanceToObstacle(d, x.Entity, x.AnotherEntity)
+                }))
+            .GroupBy(x => x.Direction)
+            .ToDictionary(x => x.Key, x => x.Select(a => a.Distance).ToHashSet());
+    }
+
+    private float CalculateDistanceToObstacle(MoveDirection direction, ICollidable collidable, ICollidable anotherCollidable)
+    {
+        return DirectionCalculator.CalculateDistanceToObstacle(direction, collidable.Hitbox, anotherCollidable.Hitbox);
     }
 
     public void Dispose()

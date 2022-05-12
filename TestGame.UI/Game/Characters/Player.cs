@@ -22,9 +22,9 @@ internal class Player : Entity, IWalkable, ICollidable
         return _movable.GetNewMove();
     }
 
-    public void DenyMoveToDirectionOnce(MoveDirection direction)
+    public void AdjustMovementOnce(MoveAdjustment direction)
     {
-        _movable.DenyMoveToDirectionOnce(direction);
+        _movable.AdjustMovementOnce(direction);
     }
 
     public void Move()

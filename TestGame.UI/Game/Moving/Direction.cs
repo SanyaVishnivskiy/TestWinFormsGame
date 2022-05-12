@@ -5,8 +5,8 @@ public class Direction
     private HashSet<MoveDirection> _directions = new(2);
     public IReadOnlySet<MoveDirection> Directions => _directions;
 
-    public MoveDirection Horizontal => Directions.SingleOrDefault(x => x == MoveDirection.Left || x == MoveDirection.Right);
-    public MoveDirection Vertical => Directions.SingleOrDefault(x => x == MoveDirection.Up || x == MoveDirection.Down);
+    public MoveDirection Horizontal => Directions.SingleOrDefault(x => CheckHorizontal(x));
+    public MoveDirection Vertical => Directions.SingleOrDefault(x => CheckVertical(x));
     public bool IsHorizontal => Horizontal != MoveDirection.None;
     public bool IsVertical => Vertical != MoveDirection.None;
     public bool IsDiagonal => IsHorizontal && IsVertical;
@@ -99,5 +99,15 @@ public class Direction
         }
 
         return _directions.GetHashCode();
+    }
+
+    public static bool CheckHorizontal(MoveDirection direction)
+    {
+        return direction == MoveDirection.Left || direction == MoveDirection.Right;
+    }
+
+    public static bool CheckVertical(MoveDirection direction)
+    {
+        return direction == MoveDirection.Up || direction == MoveDirection.Down;
     }
 }

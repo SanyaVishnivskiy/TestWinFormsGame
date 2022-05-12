@@ -39,5 +39,27 @@
 
             return MoveDirection.None;
         }
+
+        public static float CalculateDistanceToObstacle(MoveDirection direction, RectangleF hitbox, RectangleF anotherHitbox)
+        {
+            if (direction == MoveDirection.Left)
+            {
+                return hitbox.X - anotherHitbox.Right;
+            }
+            if (direction == MoveDirection.Right)
+            {
+                return anotherHitbox.X - hitbox.Right;
+            }
+            if (direction == MoveDirection.Up)
+            {
+                return hitbox.Y - anotherHitbox.Bottom;
+            }
+            if (direction == MoveDirection.Down)
+            {
+                return anotherHitbox.Y - hitbox.Bottom;
+            }
+
+            return 0;
+        }
     }
 }

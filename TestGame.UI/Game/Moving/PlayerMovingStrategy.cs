@@ -3,7 +3,7 @@
 internal class PlayerMovingStrategy : IWalkable
 {
     private readonly HashSet<MoveDirection> _activeMovings = new(4);
-    private readonly HashSet<MoveDirection> _deniedMovings = new(4);
+    private readonly Dictionary<MoveDirection, float> _adjustedMovings = new(4);
 
     public Position CurrentPosition { get; }
     public MovingInfo Moving { get; }
@@ -35,39 +35,53 @@ internal class PlayerMovingStrategy : IWalkable
     {
         MovePosition(CurrentPosition);
 
-        Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}, denied: {string.Join(", ", _deniedMovings)}");
+        //Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}, denied: {string.Join(", ", _deniedMovings)}");
 
-        _deniedMovings.Clear();
+        _adjustedMovings.Clear();
     }
 
     private void MovePosition(Position position)
     {
-        var allowedMovings = _activeMovings.Except(_deniedMovings);
+        var movings = _activeMovings
+            .Select(x => new MoveAdjustment(
+                x,
+                _adjustedMovings.TryGetValue(x, out var distance)
+                    ? distance
+                    : Moving.Speed))
+            .ToDictionary(x => x.MoveDirection, x => x.MaxDistance);
 
-        if (allowedMovings.Contains(MoveDirection.Left))
+        float distance;
+        if (movings.TryGetValue(MoveDirection.Left, out distance))
         {
-            position.AddX(-Moving.Speed);
+            position.AddX(-distance);
         }
 
-        if (allowedMovings.Contains(MoveDirection.Right))
+        if (movings.TryGetValue(MoveDirection.Right, out distance))
         {
-            position.AddX(Moving.Speed);
+            position.AddX(distance);
         }
 
-        if (allowedMovings.Contains(MoveDirection.Up))
+        if (movings.TryGetValue(MoveDirection.Up, out distance))
         {
-            position.AddY(-Moving.Speed);
+            position.AddY(-distance);
         }
 
-        if (allowedMovings.Contains(MoveDirection.Down))
+        if (movings.TryGetValue(MoveDirection.Down, out distance))
         {
-            position.AddY(Moving.Speed);
+            position.AddY(distance);
         }
     }
 
-    public void DenyMoveToDirectionOnce(MoveDirection direction)
+    public void AdjustMovementOnce(MoveAdjustment direction)
     {
-        _deniedMovings.Add(direction);
+        if (_adjustedMovings.TryGetValue(direction.MoveDirection, out var distance))
+        {
+            _adjustedMovings[direction.MoveDirection] = Math.Max(direction.MaxDistance, distance);
+        }
+        else
+        {
+            _adjustedMovings.Add(direction.MoveDirection, direction.MaxDistance);
+        }
     }
 }
 

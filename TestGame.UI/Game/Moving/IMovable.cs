@@ -13,7 +13,7 @@
     {
         Position CurrentPosition { get; }
         Position GetNewMove();
-        void DenyMoveToDirectionOnce(MoveDirection direction);
+        void AdjustMovementOnce(MoveAdjustment direction);
         void Move();
     }
 
@@ -21,5 +21,17 @@
     {
         void StartMoving(MoveDirection direction);
         void FinishMoving(MoveDirection direction);
+    }
+
+    public class MoveAdjustment
+    {
+        public MoveDirection MoveDirection { get; }
+        public float MaxDistance { get; }
+
+        public MoveAdjustment(MoveDirection direction, float maxDistance)
+        {
+            MoveDirection = direction;
+            MaxDistance = maxDistance;
+        }
     }
 }
