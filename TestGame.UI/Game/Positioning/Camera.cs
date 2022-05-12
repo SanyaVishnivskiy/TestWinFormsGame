@@ -12,15 +12,18 @@
 
         public Position Position => _entity.Position;
         public Position CentralPosition => new Position(
-            ClientSize.Width / 2 - Position.X - _entity.Animation.CurrentFrame.Width / 2,
-            ClientSize.Height / 2 - Position.Y - _entity.Animation.CurrentFrame.Height / 2);
+            ClientSize.Width / 2 - ZoomX(Position.X) - ZoomX(_entity.Animation.CurrentFrame.Width) / 2,
+            ClientSize.Height / 2 - ZoomY(Position.Y) - ZoomY(_entity.Animation.CurrentFrame.Height) / 2);
         public Size ClientSize { get; set; }
 
         public Position ToCameraPosition(Position position)
         {
-            var newX = position.X + CentralPosition.X;
-            var newY = position.Y + CentralPosition.Y;
-            return new Position(newX, newY);
+            var x = ZoomX(position.X) + CentralPosition.X;
+            var y = ZoomY(position.Y) + CentralPosition.Y;
+            return new Position(x, y);
         }
+
+        private float ZoomX(float value) => ViewResizer.CalculateWidthProportion(value);
+        private float ZoomY(float value) => ViewResizer.CalculateHeightProportion(value);
     }
 }

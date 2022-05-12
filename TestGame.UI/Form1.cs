@@ -90,7 +90,7 @@ public partial class Form1 : Form
             return cachedTexture;
         }
 
-        var result = new Bitmap(texture, new Size(entity.Width, entity.Height));
+        var result = new Bitmap(texture, ViewResizer.CalculateTextureSize(entity));
 
         _bitmapsCache.Add(texture, result);
 
@@ -145,6 +145,7 @@ public partial class Form1 : Form
     private void Form1_Resize(object sender, EventArgs e)
     {
         _state.Camera.ClientSize = ClientSize;
+        _bitmapsCache.Clear();
     }
 
     /// <summary>

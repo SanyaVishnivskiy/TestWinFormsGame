@@ -8,5 +8,8 @@
         public const int TileHeight = 32;
 
         public const int WaterBorderSizeInTiles = 5;
+
+        public const int DefaultWindowWidth = 800;
+        public const int DefaultWindowHeight = 450;
     }
 }
