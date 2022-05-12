@@ -35,7 +35,8 @@ internal class PlayerMovingStrategy : IWalkable
     {
         MovePosition(CurrentPosition);
 
-        //Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}, denied: {string.Join(", ", _deniedMovings)}");
+        Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}," +
+            $" adjusted: {string.Join(", ", _adjustedMovings)}");
 
         _adjustedMovings.Clear();
     }

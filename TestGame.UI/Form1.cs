@@ -17,7 +17,7 @@ public partial class Form1 : Form
         InitializeComponent();
 
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-        StartDebugger();
+        //StartDebugger();
         InitGame();
     }
 

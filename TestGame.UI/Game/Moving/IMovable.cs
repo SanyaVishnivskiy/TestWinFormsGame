@@ -33,5 +33,10 @@
             MoveDirection = direction;
             MaxDistance = maxDistance;
         }
+
+        public override string ToString()
+        {
+            return $"{MoveDirection} {MaxDistance}";
+        }
     }
 }
