@@ -7,7 +7,7 @@ internal class Player : Entity, IWalkable, ICollidable
     public MovingInfo Moving { get; }
     public Position CurrentPosition => Position;
 
-    public RectangleF Hitbox => new RectangleF(Position.X, Position.Y, Animation.CurrentFrame.Width, Animation.CurrentFrame.Height);
+    public RectangleF Hitbox => new RectangleF(Position.X, Position.Y, Width, Height);
 
     public Player(Position position) : base(position, EntitiesAnimations.HeroAnimations)
     {
@@ -40,10 +40,5 @@ internal class Player : Entity, IWalkable, ICollidable
     public void FinishMoving(MoveDirection direction)
     {
         _movable.FinishMoving(direction);
-    }
-
-    public void OnCollision(ICollidable other)
-    {
-        throw new NotImplementedException();
     }
 }

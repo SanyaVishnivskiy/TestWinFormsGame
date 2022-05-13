@@ -21,9 +21,4 @@ internal class WaterTile : GroundTile, ICollidable
     public override Animation Animation { get; }
 
     public RectangleF Hitbox { get; }
-
-    public void OnCollision(ICollidable other)
-    {
-        throw new NotImplementedException();
-    }
 }

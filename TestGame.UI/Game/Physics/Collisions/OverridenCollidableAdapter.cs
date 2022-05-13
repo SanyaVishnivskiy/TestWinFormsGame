@@ -16,9 +16,4 @@ public class OverridenCollidableAdapter : ICollidable
     public ICollidable Collidable { get; }
     public Position OldPosition { get; }
     public Position NewPosition { get; }
-
-    public void OnCollision(ICollidable other)
-    {
-        Collidable.OnCollision(other);
-    }
 }

@@ -36,24 +36,27 @@ public class MovingEngine : IDisposable
 
             if (movable is ICollidable collidable)
             {
-                AdjustBlockedDirections(movable, collidable, newPosition);
+                var adjustedMoves = AdjustBlockedDirections(collidable, movable.CurrentPosition, newPosition);
+                foreach (var adjustedMove in adjustedMoves)
+                {
+                    movable.AdjustMovementOnce(adjustedMove);
+                }
             }
 
             movable.Move();
         }
     }
 
-    private void AdjustBlockedDirections(IMovable movable, ICollidable collidable, Position newPosition)
+    private List<MoveAdjustment> AdjustBlockedDirections(
+        ICollidable collidable,
+        Position currentPosition,
+        Position newPosition)
     {
-        var collisions = _collisionDetector.CalculateCollisionsWithMap(collidable, movable.GetNewMove());
+        var collisions = _collisionDetector.CalculateCollisions(collidable, newPosition);
         var deniedDirections = ConvertCollisionsToDeniedDirections(
             collisions,
-            WasDiagonalMove(movable.CurrentPosition, newPosition));
-        var adjustedMoves = AdjustMoves(collisions, deniedDirections);
-        foreach (var adjustedMove in adjustedMoves)
-        {
-            movable.AdjustMovementOnce(adjustedMove);
-        }
+            WasDiagonalMove(currentPosition, newPosition));
+        return AdjustMoves(collisions, deniedDirections);
     }
 
     private bool WasDiagonalMove(Position currentPosition, Position newPosition)

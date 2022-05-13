@@ -30,7 +30,7 @@ internal class GameMap : IGameMap
 
     private TilesFactory _tilesFactory;
 
-    public GameMap(string name, int[,] groundLayer, Dictionary<Point, int> objectLayer, Point playerSpawnInTiles)
+    public GameMap(string name, int[,] groundLayer, Dictionary<Point, MapObjectType> objectLayer, Point playerSpawnInTiles)
         : this(name, groundLayer, ConvertObjectsListToMapView(objectLayer, groundLayer.GetLength(0), groundLayer.GetLength(1)), playerSpawnInTiles)
     {
     }
@@ -110,13 +110,13 @@ internal class GameMap : IGameMap
         return ObjectsLayer.TraverseWithFilter((row, column) => ObjectsLayer[row, column] is not null)!;
     }
 
-    private static int[,] ConvertObjectsListToMapView(Dictionary<Point, int> objectLayer, int width, int height)
+    private static int[,] ConvertObjectsListToMapView(Dictionary<Point, MapObjectType> objectLayer, int width, int height)
     {
         var objectLayerView = new int[width, height];
 
         foreach (var obj in objectLayer)
         {
-            objectLayerView[obj.Key.X, obj.Key.Y] = obj.Value;
+            objectLayerView[obj.Key.Y, obj.Key.X] = (int)obj.Value;
         }
 
         return objectLayerView;

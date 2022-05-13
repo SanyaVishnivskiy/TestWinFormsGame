@@ -1,4 +1,5 @@
-﻿using TestGame.UI.Game.World.Tiles;
+﻿using TestGame.UI.Game.World.MapObjects;
+using TestGame.UI.Game.World.Tiles;
 
 namespace TestGame.UI.Game.World;
 
@@ -19,7 +20,7 @@ public class TilesFactory
     {
         return type switch
         {
-           // MapObjectType.Tree => new Tree(position),
+           MapObjectType.Tree => new Tree(position),
            _ => null
         };
     }

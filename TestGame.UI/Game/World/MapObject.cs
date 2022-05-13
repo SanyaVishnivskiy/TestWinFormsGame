@@ -5,25 +5,29 @@
         public MapObject(Position position)
         {
             Position = position;
-            Width = Animation.FirstFrame.Width;
-            Height = Animation.FirstFrame.Height;
         }
 
         public Position Position { get; }
         public abstract MapObjectType Type { get; }
         public abstract Animation Animation { get; }
 
-        public virtual int Width { get; }
-        public virtual int Height { get; }
+        public virtual int Width => Animation.FirstFrame.Width;
+        public virtual int Height => Animation.FirstFrame.Height;
 
         public Bitmap GetTexture()
         {
             return Animation.GetNextFrame();
+        }
+
+        public override string ToString()
+        {
+            return $"{Position} {Type}";
         }
     }
 
     public enum MapObjectType
     {
         None = 0,
+        Tree = 1,
     }
 }

@@ -9,29 +9,20 @@ public class CollisionDetector
         _map = map;
     }
 
-    public List<Collision> CalculateCollisionsWithMap(ICollidable entity, Position newPosition)
+    public List<Collision> CalculateCollisions(ICollidable entity, Position newPosition)
     {
-        var collisions = new List<Collision>();
-
         var collidable = new OverridenCollidableAdapter(entity, newPosition);
-        var direction = DirectionCalculator.CalculateDirection(collidable.OldPosition, collidable.NewPosition);
 
-        GroundTile[,] tiles = CalculateEntityPositionOnTiles(collidable);
-        tiles.Loop((row, column) =>
-        {
-            GroundTile tile = tiles[row, column];
-            if (tile != null && tile is ICollidable collidableTile)
-            {
-                (var collides, var collisionDirections) = CheckCollides(collidable, collidableTile, direction);
-                if (collides)
-                {
-                    var tileCollisions = collisionDirections.Select(x => new Collision(collidable, collidableTile, x));
-                    collisions.AddRange(tileCollisions);
-                }
-            }
-        });
+        return CalculateCollisionsWithMap(collidable)
+            .Concat(CalculateCollisionsWithMapObjects(collidable))
+            .ToList();
+    }
 
-        return collisions;
+    public IEnumerable<Collision> CalculateCollisionsWithMap(OverridenCollidableAdapter entity)
+    {
+        GroundTile[,] tiles = CalculateEntityPositionOnTiles(entity);
+
+        return CalculateCollisionsIfCollidable(entity, tiles.Traverse());
     }
 
     private GroundTile[,] CalculateEntityPositionOnTiles(OverridenCollidableAdapter collidable)
@@ -51,10 +42,33 @@ public class CollisionDetector
         return result;
     }
 
-    private bool CheckHitboxesCollides(RectangleF hitbox, RectangleF anotherHitbox)
+    private IEnumerable<Collision> CalculateCollisionsIfCollidable(
+        OverridenCollidableAdapter entity,
+        IEnumerable<object> objects)
     {
-        var rectangle = Intersects(hitbox, anotherHitbox);
-        return !rectangle.IsEmpty;
+        var collidableObjects = objects.Where(x => x is not null).OfType<ICollidable>();
+
+        return CalculateCollisions(entity, collidableObjects);
+    }
+
+    private IEnumerable<Collision> CalculateCollisions(
+        OverridenCollidableAdapter entity,
+        IEnumerable<ICollidable> otherEntities)
+    {
+        var collisions = new List<Collision>();
+
+        var direction = DirectionCalculator.CalculateDirection(entity.OldPosition, entity.NewPosition);
+        foreach (var otherEntity in otherEntities)
+        {
+            (var collides, var collisionDirections) = CheckCollides(entity, otherEntity, direction);
+            if (collides)
+            {
+                var tileCollisions = collisionDirections.Select(x => new Collision(entity.Collidable, otherEntity, x));
+                collisions.AddRange(tileCollisions);
+            }
+        }
+
+        return collisions;
     }
 
     private (bool, List<Direction>) CheckCollides(
@@ -86,6 +100,18 @@ public class CollisionDetector
         return (true, resultDirections);
     }
 
+    private bool CheckHitboxesCollides(RectangleF hitbox, RectangleF anotherHitbox)
+    {
+        var rectangle = Intersects(hitbox, anotherHitbox);
+        return !rectangle.IsEmpty;
+    }
+
+    private RectangleF Intersects(RectangleF hitbox1, RectangleF hitbox2)
+    {
+        hitbox1.Intersect(hitbox2);
+        return hitbox1;
+    }
+
     public bool CheckCollisionOnDirection(
         OverridenCollidableAdapter collidable,
         ICollidable anotherCollidable,
@@ -100,27 +126,28 @@ public class CollisionDetector
         return CheckHitboxesCollides(movedHitbox, anotherCollidable.Hitbox);
     }
 
-    private RectangleF Intersects(RectangleF hitbox1, RectangleF hitbox2)
-    {
-        hitbox1.Intersect(hitbox2);
-        return hitbox1;
-    }
-
     private RectangleF MoveHitboxToOneDirection(RectangleF oldHitbox, RectangleF newHitbox, MoveDirection direction)
     {
         var point = new PointF();
-        if (direction == MoveDirection.Left || direction == MoveDirection.Right)
+        if (Direction.CheckHorizontal(direction))
         {
             point.X = newHitbox.X;
             point.Y = oldHitbox.Y;
         }
-        else if (direction == MoveDirection.Up || direction == MoveDirection.Down)
+        else if (Direction.CheckVertical(direction))
         {
             point.X = oldHitbox.X;
             point.Y = newHitbox.Y;
         }
 
         return new RectangleF(point, oldHitbox.Size);
+    }
+
+    private IEnumerable<Collision> CalculateCollisionsWithMapObjects(OverridenCollidableAdapter entity)
+    {
+        var mapObjects = _map.GetMapObjects().Cast<object>();
+
+        return CalculateCollisionsIfCollidable(entity, mapObjects);
     }
 }
 

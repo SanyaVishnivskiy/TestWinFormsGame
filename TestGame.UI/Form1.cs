@@ -63,14 +63,14 @@ public partial class Form1 : Form
             DrawDependingOnCamera(g, groundTile);
         }
 
-        foreach (var groundTile in _state.Map.GetMapObjects())
-        {
-            DrawDependingOnCamera(g, groundTile);
-        }
-
         foreach (var entity in _entitiesToRender)
         {
             DrawDependingOnCamera(g, entity);
+        }
+
+        foreach (var mapObject in _state.Map.GetMapObjects())
+        {
+            DrawDependingOnCamera(g, mapObject);
         }
     }
 
