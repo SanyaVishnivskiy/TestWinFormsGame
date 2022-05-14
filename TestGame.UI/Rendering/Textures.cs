@@ -12,5 +12,8 @@
 
         // Objects
         public static readonly Bitmap Tree = Resources.tree;
+
+        // Enemies
+        public static readonly Bitmap Dummy = Resources.enemy_dummy;
     }
 }

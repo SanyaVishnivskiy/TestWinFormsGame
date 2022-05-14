@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Characters;
 
-internal abstract class Entity : IRenderable
+public abstract class Entity : IRenderable
 {
     public Entity(Position position, Animation animation)
     {

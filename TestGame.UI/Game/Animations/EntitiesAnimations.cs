@@ -9,5 +9,9 @@
             .WithFrameDelay(TimeSpan.FromMilliseconds(500))
             .Looped()
             .Build();
+
+        public static Animation DummyAnimation = Animation.New()
+            .FromSprite(Textures.Dummy)
+            .Build();
     }
 }

@@ -13,6 +13,7 @@ internal class WaterTile : GroundTile, ICollidable
             .Build();
 
         Hitbox = new RectangleF(Position.X, Position.Y, Constants.TileWidth, Constants.TileHeight);
+        SpawnAllowed = false;
     }
 
 

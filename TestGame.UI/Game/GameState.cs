@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game;
 
-internal class GameState
+public class GameState
 {
     public static readonly GameState Instance = new GameState();
 

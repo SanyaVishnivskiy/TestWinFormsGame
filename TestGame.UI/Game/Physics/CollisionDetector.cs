@@ -12,9 +12,13 @@ public class CollisionDetector
     public List<Collision> CalculateCollisions(ICollidable entity, Position newPosition)
     {
         var collidable = new OverridenCollidableAdapter(entity, newPosition);
+        var gameEntities = GameState.Instance.AllGameEntities
+            .Except(new[] { entity })
+            .OfType<Entity>();
 
         return CalculateCollisionsWithMap(collidable)
             .Concat(CalculateCollisionsWithMapObjects(collidable))
+            .Concat(CalculateCollisionsIfCollidable(collidable, gameEntities))
             .ToList();
     }
 

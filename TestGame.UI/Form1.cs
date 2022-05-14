@@ -9,6 +9,7 @@ public partial class Form1 : Form
     private Player _player => _state.Player;
 
     private MovingEngine _movingEngine;
+    private SpawningEngine _spawningEngine;
 
     private Debugger _debuggerWindow;
 
@@ -36,6 +37,9 @@ public partial class Form1 : Form
 
         _state.OnAllGameEntitiesChange += OnEntitiesListChange;
         OnEntitiesListChange(this, new GameEntitiesChangeEventArgs(_state.AllGameEntities));
+
+        _spawningEngine = new SpawningEngine();
+        _spawningEngine.InitialSpawn();
     }
 
     private void OnEntitiesListChange(object? sender, GameEntitiesChangeEventArgs e)
@@ -48,7 +52,13 @@ public partial class Form1 : Form
         Graphics g = e.Graphics;
 
         DoMoves();
+        SpawnEntities();
         Render(g);
+    }
+
+    private void SpawnEntities()
+    {
+        _spawningEngine.Spawn();
     }
 
     private void DoMoves()

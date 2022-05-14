@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Characters;
 
-internal class Player : Entity, IWalkable, ICollidable
+public class Player : Entity, IWalkable, ICollidable
 {
     private readonly IWalkable _movable;
 

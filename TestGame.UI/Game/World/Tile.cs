@@ -14,6 +14,8 @@
         public abstract TileType Type { get; }
         public abstract Animation Animation { get; }
 
+        public bool SpawnAllowed { get; protected set; } = true;
+
         public Bitmap GetTexture()
         {
             return Animation.GetNextFrame();

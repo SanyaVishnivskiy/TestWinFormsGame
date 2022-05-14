@@ -11,6 +11,8 @@ public interface IGameMap
     IEnumerable<GroundTile> GetGroundTiles();
     IEnumerable<MapObject> GetMapObjects();
     GroundTile GetGroundTile(int x, int y);
+    bool CheckValidSpawnWithWater(Point point);
+    Point CalculateTilePositionWithWaterInTiles(Point point);
 }
 
 internal class GameMap : IGameMap
@@ -30,12 +32,24 @@ internal class GameMap : IGameMap
 
     private TilesFactory _tilesFactory;
 
-    public GameMap(string name, int[,] groundLayer, Dictionary<Point, MapObjectType> objectLayer, Point playerSpawnInTiles)
-        : this(name, groundLayer, ConvertObjectsListToMapView(objectLayer, groundLayer.GetLength(0), groundLayer.GetLength(1)), playerSpawnInTiles)
+    public GameMap(
+        string name,
+        int[,] groundLayer,
+        Dictionary<Point, MapObjectType> objectLayer,
+        Point playerSpawnInTiles)
+        : this(
+              name,
+              groundLayer,
+              ConvertObjectsListToMapView(objectLayer, groundLayer.GetLength(0), groundLayer.GetLength(1)),
+              playerSpawnInTiles)
     {
     }
 
-    public GameMap(string name, int[,] groundLayer, int[,] objectLayer, Point playerSpawnInTiles)
+    public GameMap(
+        string name,
+        int[,] groundLayer,
+        int[,] objectLayer,
+        Point playerSpawnInTiles)
     {
         Name = name;
         if (groundLayer.GetLength(0) != objectLayer.GetLength(0) || groundLayer.GetLength(1) != objectLayer.GetLength(1))
@@ -97,7 +111,7 @@ internal class GameMap : IGameMap
 
     private int CalculateLengthWithWater(int mapLength) => mapLength + 2 * Constants.WaterBorderSizeInTiles;
 
-    private Point CalculateTilePositionWithWaterInTiles(Point point) =>
+    public Point CalculateTilePositionWithWaterInTiles(Point point) =>
         new Point(point.X + Constants.WaterBorderSizeInTiles, point.Y + Constants.WaterBorderSizeInTiles);
 
     public IEnumerable<GroundTile> GetGroundTiles()
@@ -125,5 +139,20 @@ internal class GameMap : IGameMap
     public GroundTile GetGroundTile(int x, int y)
     {
         return GroundLayer[x, y];
+    }
+
+    public bool CheckValidSpawnWithWater(Point point)
+    {
+        if (!GroundLayer[point.Y, point.X].SpawnAllowed)
+        {
+            return false;
+        }
+
+        if (ObjectsLayer[point.Y, point.X] is not null)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
