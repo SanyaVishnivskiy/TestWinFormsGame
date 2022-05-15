@@ -12,10 +12,12 @@
     public interface IMovable
     {
         Position CurrentPosition { get; }
-        Position GetNewMove();
+        Move GetNewMove();
         void AdjustMovementOnce(MoveAdjustment direction);
-        void Move();
+        Move Move();
     }
+
+    public record Move(Direction Direction, Position Position);
 
     public interface IWalkable : IMovable
     {

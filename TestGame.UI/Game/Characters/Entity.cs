@@ -2,7 +2,7 @@
 
 public abstract class Entity : IRenderable
 {
-    public Entity(Position position, Animation animation)
+    public Entity(Position position, AnimationAggregate animation)
     {
         Position = position;
         Animation = animation;
@@ -11,7 +11,7 @@ public abstract class Entity : IRenderable
     }
 
     public Position Position { get; }
-    public Animation Animation { get; }
+    public AnimationAggregate Animation { get; }
 
     public virtual int Width { get; }
     public virtual int Height { get; }

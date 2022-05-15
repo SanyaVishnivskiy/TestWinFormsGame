@@ -2,12 +2,12 @@
 
 public class OverridenCollidableAdapter : ICollidable
 {
-    public OverridenCollidableAdapter(ICollidable collidable, Position position)
+    public OverridenCollidableAdapter(ICollidable collidable, Move move)
     {
         Collidable = collidable;
-        NewPosition = position;
+        Move = move;
         OldPosition = new Position(collidable.Hitbox.Location.X, collidable.Hitbox.Location.Y);
-        NewHitbox = new RectangleF(position.X, position.Y, collidable.Hitbox.Width, collidable.Hitbox.Height);
+        NewHitbox = new RectangleF(move.Position.X, move.Position.Y, collidable.Hitbox.Width, collidable.Hitbox.Height);
     }
 
     public RectangleF Hitbox => Collidable.Hitbox;
@@ -15,5 +15,5 @@ public class OverridenCollidableAdapter : ICollidable
 
     public ICollidable Collidable { get; }
     public Position OldPosition { get; }
-    public Position NewPosition { get; }
+    public Move Move { get; }
 }

@@ -24,32 +24,27 @@ internal class PlayerMovingStrategy : IWalkable
         _activeMovings.Add(direction);
     }
 
-    public Position GetNewMove()
+    public Move GetNewMove()
     {
         var position = CurrentPosition.Clone();
-        MovePosition(position);
-        return position;
+        return MovePosition(position);
     }
 
-    public void Move()
+    public Move Move()
     {
-        MovePosition(CurrentPosition);
+        var move = MovePosition(CurrentPosition);
 
         Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}," +
             $" adjusted: {string.Join(", ", _adjustedMovings)}");
 
         _adjustedMovings.Clear();
+
+        return move;
     }
 
-    private void MovePosition(Position position)
+    private Move MovePosition(Position position)
     {
-        var movings = _activeMovings
-            .Select(x => new MoveAdjustment(
-                x,
-                _adjustedMovings.TryGetValue(x, out var distance)
-                    ? distance
-                    : Moving.Speed))
-            .ToDictionary(x => x.MoveDirection, x => x.MaxDistance);
+        var movings = GetDirectionsAndDistance();
 
         float distance;
         if (movings.TryGetValue(MoveDirection.Left, out distance))
@@ -71,13 +66,32 @@ internal class PlayerMovingStrategy : IWalkable
         {
             position.AddY(distance);
         }
+
+        var direction = new Direction();
+        foreach (var moving in movings.Keys)
+        {
+            direction.Add(moving);
+        }
+
+        return new Move(direction, position.Clone());
+    }
+
+    private Dictionary<MoveDirection, float> GetDirectionsAndDistance()
+    {
+        return _activeMovings
+               .Select(x => new MoveAdjustment(
+                   x,
+                   _adjustedMovings.TryGetValue(x, out var distance)
+                       ? distance
+                       : Moving.Speed))
+               .ToDictionary(x => x.MoveDirection, x => x.MaxDistance);
     }
 
     public void AdjustMovementOnce(MoveAdjustment direction)
     {
         if (_adjustedMovings.TryGetValue(direction.MoveDirection, out var distance))
         {
-            _adjustedMovings[direction.MoveDirection] = Math.Max(direction.MaxDistance, distance);
+            _adjustedMovings[direction.MoveDirection] = Math.Min(direction.MaxDistance, distance);
         }
         else
         {

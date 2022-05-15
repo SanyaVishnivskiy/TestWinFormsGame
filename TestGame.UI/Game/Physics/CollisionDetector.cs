@@ -9,9 +9,9 @@ public class CollisionDetector
         _map = map;
     }
 
-    public List<Collision> CalculateCollisions(ICollidable entity, Position newPosition)
+    public List<Collision> CalculateCollisions(ICollidable entity, Move move)
     {
-        var collidable = new OverridenCollidableAdapter(entity, newPosition);
+        var collidable = new OverridenCollidableAdapter(entity, move);
         var gameEntities = GameState.Instance.AllGameEntities
             .Except(new[] { entity })
             .OfType<Entity>();
@@ -61,10 +61,9 @@ public class CollisionDetector
     {
         var collisions = new List<Collision>();
 
-        var direction = DirectionCalculator.CalculateDirection(entity.OldPosition, entity.NewPosition);
         foreach (var otherEntity in otherEntities)
         {
-            (var collides, var collisionDirections) = CheckCollides(entity, otherEntity, direction);
+            (var collides, var collisionDirections) = CheckCollides(entity, otherEntity);
             if (collides)
             {
                 var tileCollisions = collisionDirections.Select(x => new Collision(entity.Collidable, otherEntity, x));
@@ -77,14 +76,14 @@ public class CollisionDetector
 
     private (bool, List<Direction>) CheckCollides(
         OverridenCollidableAdapter collidable,
-        ICollidable anotherCollidable,
-        Direction direction)
+        ICollidable anotherCollidable)
     {
         if (!CheckHitboxesCollides(collidable.NewHitbox, anotherCollidable.Hitbox))
         {
             return (false, new List<Direction>());
         }
 
+        var direction = collidable.Move.Direction;
         var resultDirections = new List<Direction>() { direction };
         if (!direction.IsDiagonal)
         {

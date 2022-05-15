@@ -28,15 +28,15 @@ public class MovingEngine : IDisposable
                 continue;
             }
 
-            var newPosition = movable.GetNewMove();
-            if (movable.CurrentPosition.Equals(newPosition))
+            var move = movable.GetNewMove();
+            if (movable.CurrentPosition.Equals(move.Position))
             {
                 return;
             }
 
             if (movable is ICollidable collidable)
             {
-                var adjustedMoves = AdjustBlockedDirections(collidable, movable.CurrentPosition, newPosition);
+                var adjustedMoves = AdjustBlockedDirections(collidable, move);
                 foreach (var adjustedMove in adjustedMoves)
                 {
                     movable.AdjustMovementOnce(adjustedMove);
@@ -49,19 +49,13 @@ public class MovingEngine : IDisposable
 
     private List<MoveAdjustment> AdjustBlockedDirections(
         ICollidable collidable,
-        Position currentPosition,
-        Position newPosition)
+        Move move)
     {
-        var collisions = _collisionDetector.CalculateCollisions(collidable, newPosition);
+        var collisions = _collisionDetector.CalculateCollisions(collidable, move);
         var deniedDirections = ConvertCollisionsToDeniedDirections(
             collisions,
-            WasDiagonalMove(currentPosition, newPosition));
+            move.Direction.IsDiagonal);
         return AdjustMoves(collisions, deniedDirections);
-    }
-
-    private bool WasDiagonalMove(Position currentPosition, Position newPosition)
-    {
-        return currentPosition.X != newPosition.X && currentPosition.Y != newPosition.Y;
     }
 
     private HashSet<MoveDirection> ConvertCollisionsToDeniedDirections(List<Collision> collisions, bool wasDiagonalMove)

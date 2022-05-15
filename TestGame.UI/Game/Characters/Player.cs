@@ -17,7 +17,7 @@ public class Player : Entity, IWalkable, ICollidable
         _movable = new PlayerMovingStrategy(Position, Moving);
     }
 
-    public Position GetNewMove()
+    public Move GetNewMove()
     {
         return _movable.GetNewMove();
     }
@@ -27,9 +27,28 @@ public class Player : Entity, IWalkable, ICollidable
         _movable.AdjustMovementOnce(direction);
     }
 
-    public void Move()
+    public Move Move()
     {
-        _movable.Move();
+        var move = _movable.Move();
+        UpdateMoveAnimation(move);
+        return move;
+    }
+
+    private void UpdateMoveAnimation(Move move)
+    {
+        if (!move.Direction.IsHorizontal)
+        {
+            return;
+        }
+
+        if (move.Direction.Horizontal == MoveDirection.Left)
+        {
+            Animation.ChangeAnimation(new ChangeAnimationOptions(AnimationActionType.MoveLeft));
+        }
+        else
+        {
+            Animation.ChangeAnimation(new ChangeAnimationOptions(AnimationActionType.MoveRight));
+        }
     }
 
     public void StartMoving(MoveDirection direction)

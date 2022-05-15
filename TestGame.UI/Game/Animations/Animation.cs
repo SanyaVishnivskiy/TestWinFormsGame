@@ -1,14 +1,21 @@
 ﻿namespace TestGame.UI.Game.Animations;
 
-public class Animation
+public class Animation : IDetailedAnimation
 {
     private readonly List<Bitmap> frames = new();
 
     private int _currentFrame = 0;
     private bool _playedOnce = false;
     private DateTime _lastFrameUpdated = DateTime.MinValue;
-    
-    public Animation(Bitmap image, Rectangle firstFrame, int frameCount, int nextFrameOffset, TimeSpan frameDelay, bool loop)
+
+    public Animation(
+        Bitmap image,
+        Rectangle firstFrame,
+        int frameCount,
+        int nextFrameOffset,
+        TimeSpan frameDelay,
+        bool loop,
+        AnimationActionType type)
     {
         Image = image;
         FirstFrame = firstFrame;
@@ -16,6 +23,7 @@ public class Animation
         NextFrameOffset = nextFrameOffset;
         FrameDelay = frameDelay;
         Loop = loop;
+        Type = type;
 
         InitFrames();
     }
@@ -26,6 +34,7 @@ public class Animation
     public int NextFrameOffset { get; }
     public TimeSpan FrameDelay { get; }
     public bool Loop { get; }
+    public AnimationActionType Type { get; }
 
     public Bitmap CurrentFrame => frames[_currentFrame];
 
@@ -73,5 +82,12 @@ public class Animation
         return CurrentFrame;
     }
 
-    public static AnimationsBuilder New() => new AnimationsBuilder();
+    public void Reset()
+    {
+        _currentFrame = 0;
+        _playedOnce = false;
+    }
+
+    public static IAnimationsBuilder New() => new AnimationsBuilder();
+    public static IAnimationAggregatesBuilder NewAggregate() => new AnimationAggregatesBuilder();
 }
