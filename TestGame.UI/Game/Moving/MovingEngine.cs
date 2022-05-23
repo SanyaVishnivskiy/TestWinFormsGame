@@ -6,10 +6,10 @@ public class MovingEngine : IDisposable
 
     private CollisionDetector _collisionDetector;
 
-    public MovingEngine()
+    public MovingEngine(GameState state)
     {
-        GameState.Instance.OnAllGameEntitiesChange += OnListUpdate;
-        OnListUpdate(this, new GameEntitiesChangeEventArgs(GameState.Instance.AllGameEntities));
+        state.OnAllGameEntitiesChange += OnListUpdate;
+        OnListUpdate(this, new GameEntitiesChangeEventArgs(state.AllGameEntities));
 
         _collisionDetector = new CollisionDetector(GameState.Instance.Map);
     }

@@ -5,8 +5,7 @@ public interface IGameMap
     string Name { get; }
     int Width { get; }
     int Height { get; }
-    Point PlayerSpawnInTiles { get; }
-    Position PlayerSpawnPosition { get; }
+    Point PlayerSpawnTile { get; }
 
     IEnumerable<GroundTile> GetGroundTiles();
     IEnumerable<MapObject> GetMapObjects();
@@ -27,8 +26,7 @@ internal class GameMap : IGameMap
 
     public GroundTile[,] GroundLayer { get; }
     public MapObject?[,] ObjectsLayer { get; }
-    public Point PlayerSpawnInTiles { get; }
-    public Position PlayerSpawnPosition { get; }
+    public Point PlayerSpawnTile { get; }
 
     private TilesFactory _tilesFactory;
 
@@ -36,12 +34,12 @@ internal class GameMap : IGameMap
         string name,
         int[,] groundLayer,
         Dictionary<Point, MapObjectType> objectLayer,
-        Point playerSpawnInTiles)
+        Point playerSpawn)
         : this(
               name,
               groundLayer,
               ConvertObjectsListToMapView(objectLayer, groundLayer.GetLength(0), groundLayer.GetLength(1)),
-              playerSpawnInTiles)
+              playerSpawn)
     {
     }
 
@@ -49,7 +47,7 @@ internal class GameMap : IGameMap
         string name,
         int[,] groundLayer,
         int[,] objectLayer,
-        Point playerSpawnInTiles)
+        Point playerSpawn)
     {
         Name = name;
         if (groundLayer.GetLength(0) != objectLayer.GetLength(0) || groundLayer.GetLength(1) != objectLayer.GetLength(1))
@@ -59,8 +57,6 @@ internal class GameMap : IGameMap
 
         _groundLayer = groundLayer;
         _objectLayer = objectLayer;
-        PlayerSpawnInTiles = CalculateTilePositionWithWaterInTiles(playerSpawnInTiles);
-        PlayerSpawnPosition = ConvertTilesToPixels(PlayerSpawnInTiles);
 
         GroundLayer = new GroundTile[
             CalculateLengthWithWater(Width),
@@ -69,6 +65,8 @@ internal class GameMap : IGameMap
             CalculateLengthWithWater(Width),
             CalculateLengthWithWater(Height)];
         InitMap();
+
+        PlayerSpawnTile = playerSpawn;
     }
 
     private Position ConvertTilesToPixels(Point tile) => TileToPositionConverter.ConvertTilesToPosition(tile);

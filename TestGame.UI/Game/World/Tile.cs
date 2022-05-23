@@ -9,6 +9,7 @@
 
         public virtual int Width => Constants.TileWidth;
         public virtual int Height => Constants.TileHeight;
+        public Bitmap CurrentTexture => Animation.CurrentFrame;
 
         public Position Position { get; }
         public abstract TileType Type { get; }

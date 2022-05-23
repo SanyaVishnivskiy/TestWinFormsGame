@@ -4,9 +4,12 @@ public class SpawningEngine
 {
     private readonly List<Spawner> _initialSpawners;
     private readonly List<Spawner> _spawners;
+    private readonly PlayerSpawner _playerSpawner;
 
-    public SpawningEngine()
+    public SpawningEngine(Point playerSpawnerInTiles)
     {
+        _playerSpawner = new PlayerSpawner(playerSpawnerInTiles);
+
         var spawners = GetEntitiesSpawners();
         _initialSpawners = spawners.Where(x => x.Type == SpawningType.Initial).ToList();
         _spawners = spawners.Where(x => x.Type == SpawningType.Sequential).ToList();
@@ -16,7 +19,7 @@ public class SpawningEngine
     {
         return new List<Spawner>
         {
-            new SimpleSpawner(new Rectangle(2, 19, 0, 0), p => new Dummy(p))
+            new InitialSpawner(new Rectangle(2, 19, 0, 0), p => new Dummy(p))
         };
     }
 
@@ -26,6 +29,11 @@ public class SpawningEngine
         {
             spawner.Spawn();
         }
+    }
+
+    public void SpawnPlayer()
+    {
+        _playerSpawner.Spawn();
     }
 
     public void Spawn()

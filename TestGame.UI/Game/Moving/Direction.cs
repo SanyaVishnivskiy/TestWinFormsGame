@@ -110,4 +110,6 @@ public class Direction
     {
         return direction == MoveDirection.Up || direction == MoveDirection.Down;
     }
+
+    public static Direction None => new Direction();
 }

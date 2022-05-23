@@ -2,22 +2,35 @@
 
 public class AnimationAggregate : IAnimation
 {
-    private readonly Dictionary<AnimationActionType, AnimationAggregateItem> _animations;
+    private readonly Dictionary<AnimationAggregateItemKey, AnimationAggregateItem> _animations;
+    private readonly Dictionary<AnimationActionType, AnimationAggregateItem> _previousAnimations;
 
     public AnimationAggregate(List<AnimationAggregateItem> animations)
     {
         _animations = animations
-            .ToDictionary(x => x.Animation.Type);
+            .ToDictionary(x => new AnimationAggregateItemKey(x.Type, x.Direction));
         _currentAnimation = animations
             .FirstOrDefault(x => x.Animation.Type == AnimationActionType.Idle)
             ?? animations[0];
+        _previousAnimations = new();
+        Default = _currentAnimation.Animation;
     }
 
     private AnimationAggregateItem _currentAnimation;
 
     public Bitmap CurrentFrame => _currentAnimation.Animation.CurrentFrame;
+    public Animation CurrentAnimation => _currentAnimation.Animation;
+    public Animation Default { get; }
 
     public Rectangle FirstFrame => _currentAnimation.Animation.FirstFrame;
+
+    public void ReturnToAnimation(AnimationActionType type)
+    {
+        if (_previousAnimations.TryGetValue(type, out var previousAnimation))
+        {
+            _currentAnimation = previousAnimation;
+        }
+    }
 
     public Bitmap GetNextFrame()
     {
@@ -26,39 +39,47 @@ public class AnimationAggregate : IAnimation
 
     public void ChangeAnimation(ChangeAnimationOptions options)
     {
-        var typesToTry = new[] { options.ActionType }
-            .Concat(options.FallbackAnimations)
-            .ToList();
+        var typesToTry = new List<AnimationActionType>(options.FallbackAnimations.Count + 2);
+        typesToTry.Add(options.ActionType);
+        typesToTry.AddRange(options.FallbackAnimations);
+        typesToTry.Add(Default.Type);
 
+        var current = _currentAnimation;
         foreach (var type in typesToTry)
         {
-            if (_animations.ContainsKey(type))
+            var key = new AnimationAggregateItemKey(type, options.Direction);
+            if (_animations.ContainsKey(key))
             {
-                _currentAnimation = _animations[type];
+                _currentAnimation = _animations[key];
                 _currentAnimation.Animation.Reset();
+                _previousAnimations[current.Type] = current;
                 return;
             }
         }
     }
 }
 
+public record AnimationAggregateItemKey(AnimationActionType Type, MoveDirection? Direction);
+
 public class AnimationAggregateItem
 {
-    public AnimationAggregateItem(Animation animation, bool interruptable)
+    public AnimationAggregateItem(Animation animation)
     {
         Animation = animation;
-        Interruptable = interruptable;
     }
 
     public Animation Animation { get; }
-    public bool Interruptable { get; }
+    public bool Interruptable { get; init; }
+    public AnimationActionType Type { get; init; }
+    public MoveDirection? Direction { get; init; }
 }
 
 public struct ChangeAnimationOptions
 {
     public AnimationActionType ActionType { get; }
     public TimeSpan Duration { get; init; } = default;
-    public List<AnimationActionType> FallbackAnimations { get; init; } = new List<AnimationActionType>();
+    public List<AnimationActionType> FallbackAnimations { get; init; } = new();
+    public MoveDirection? Direction { get; init; } = null;
 
     public ChangeAnimationOptions(AnimationActionType type)
     {
@@ -71,11 +92,6 @@ public enum AnimationActionType
     None = 0,
     Idle,
     Death,
-    MoveLeft,
-    MoveRight,
+    Move,
     Attack,
-    AttackDaggerLeft,
-    AttackDaggerRight,
-    AttackDaggerUp,
-    AttackDaggerDown,
 }

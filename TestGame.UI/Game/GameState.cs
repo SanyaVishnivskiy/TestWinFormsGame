@@ -4,26 +4,31 @@ public class GameState
 {
     public static readonly GameState Instance = new GameState();
 
-    private List<object> _allGameEntities = new List<object>();
-
+    private List<object> _allGameEntities = new();
     public IReadOnlyList<object> AllGameEntities => _allGameEntities;
     public event EventHandler<GameEntitiesChangeEventArgs> OnAllGameEntitiesChange;
 
-    public Player Player { get; private set; }
+    private List<Entity> _attackingEntities = new();
+    public IReadOnlyList<Entity> AttackingEntities => _attackingEntities;
+    public event EventHandler<WeaponActivationEventArgs> OnMarkingAttack;
+
+    public Player Player { get; set; }
     public Camera Camera { get; private set; }
-    public IGameMap Map { get; private set; }
+    public IGameMap Map { get; set; }
 
     public void Init(Size clientSize)
     {
-        var mapsProvider = new InMemoryMapsProvider();
-        Map = mapsProvider.GetMapByName("Default");
+        if (Player is null)
+        {
+            throw new Exception("Player is not spawned");
+        }
 
-        Player = new Player(Map.PlayerSpawnPosition);
+        if (Map is null)
+        {
+            throw new Exception("Map is not set");
+        }
+
         Camera = new Camera(Player, clientSize);
-
-        _allGameEntities.Add(Player);
-        //Player.StartMoving(MoveDirection.Right);
-        //Player.StartMoving(MoveDirection.Up);
     }
 
     public void AddGameEntity(object entity)
@@ -31,6 +36,28 @@ public class GameState
         _allGameEntities.Add(entity);
         OnAllGameEntitiesChange?.Invoke(this, new GameEntitiesChangeEventArgs(_allGameEntities));
     }
+
+    public void MarkAttacking(Entity entity)
+    {
+        _attackingEntities.Add(entity);
+        OnMarkingAttack?.Invoke(this, new WeaponActivationEventArgs(_attackingEntities));
+    }
+
+    public void MarkAttackFinished(Entity entity)
+    {
+        _attackingEntities.Remove(entity);
+        OnMarkingAttack?.Invoke(this, new WeaponActivationEventArgs(_attackingEntities));
+    }
+}
+
+public class WeaponActivationEventArgs : EventArgs
+{
+    public WeaponActivationEventArgs(IReadOnlyList<Entity> weapons)
+    {
+        Weapons = weapons;
+    }
+
+    public IReadOnlyList<Entity> Weapons { get; }
 }
 
 public class GameEntitiesChangeEventArgs : EventArgs

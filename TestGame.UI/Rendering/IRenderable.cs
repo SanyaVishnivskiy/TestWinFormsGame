@@ -2,6 +2,7 @@
 {
     public interface IRenderable
     {
+        Bitmap CurrentTexture { get; }
         Position Position { get; }
 
         int Width { get; }

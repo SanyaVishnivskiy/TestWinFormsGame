@@ -1,10 +1,10 @@
 ﻿namespace TestGame.UI.Game.Characters.Spawning
 {
-    public class SimpleSpawner : Spawner
+    public class InitialSpawner : Spawner
     {
         private readonly Func<Position, Entity> _spawnFunc;
 
-        public SimpleSpawner(Rectangle spawnRadiusInTiles, Func<Position, Entity> spawnFunc) 
+        public InitialSpawner(Rectangle spawnRadiusInTiles, Func<Position, Entity> spawnFunc) 
             : base(spawnRadiusInTiles, 1, default)
         {
             _spawnFunc = spawnFunc;

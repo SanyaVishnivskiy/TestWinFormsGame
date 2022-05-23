@@ -63,6 +63,16 @@ namespace TestGame.UI {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap dagger {
+            get {
+                object obj = ResourceManager.GetObject("dagger", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap enemy_dummy {
             get {
                 object obj = ResourceManager.GetObject("enemy_dummy", resourceCulture);

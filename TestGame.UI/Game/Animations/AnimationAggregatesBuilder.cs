@@ -5,12 +5,19 @@ public interface IAnimationAggregatesBuilder
     AnimationAggregate BuildAggregation();
     IAnimationAggregatesBuilder NewAnimation(Func<IAnimationsBuilder, IAnimationsBuilder> builder);
     IAnimationAggregatesBuilder OfType(AnimationActionType type);
+    IAnimationAggregatesBuilder ForDirection(MoveDirection? Direction);
 }
 
 internal class AnimationsBuilderItem
 {
-    public IAnimationsBuilder Builder { get; set; }
+    public IAnimationsBuilder? Builder { get;}
     public AnimationActionType Type { get; set; }
+    public MoveDirection? Direction { get; set; }
+
+    public AnimationsBuilderItem(IAnimationsBuilder? builder)
+    {
+        Builder = builder;
+    }
 }
 
 public class AnimationAggregatesBuilder : IAnimationAggregatesBuilder
@@ -22,20 +29,25 @@ public class AnimationAggregatesBuilder : IAnimationAggregatesBuilder
     public IAnimationAggregatesBuilder NewAnimation(Func<IAnimationsBuilder, IAnimationsBuilder> build)
     {
         var builder = build(new AnimationsBuilder());
-        _builders.Add(new AnimationsBuilderItem
-        {
-            Builder = builder
-        });
+        _builders.Add(new AnimationsBuilderItem(builder));
         _currentBuilderIndex++;
         return this;
     }
 
     public IAnimationAggregatesBuilder OfType(AnimationActionType type)
     {
+        CurrentBuilder.Type = type;
         if (CurrentBuilder.Builder is IAggregatedAnimationBuilder builder)
         {
             builder.OfType(type);
         }
+
+        return this;
+    }
+
+    public IAnimationAggregatesBuilder ForDirection(MoveDirection? Direction)
+    {
+        CurrentBuilder.Direction = Direction;
         return this;
     }
 
@@ -44,7 +56,12 @@ public class AnimationAggregatesBuilder : IAnimationAggregatesBuilder
         var animations = new List<AnimationAggregateItem>();
         foreach (var builder in _builders)
         {
-            animations.Add(new AnimationAggregateItem(builder.Builder.Build(), true)); //TODO fix true
+            animations.Add(new AnimationAggregateItem(builder.Builder.Build())
+            {
+                Interruptable = true,
+                Direction = builder.Direction,
+                Type = builder.Type
+            }); //TODO fix true
         }
 
         return new AnimationAggregate(animations);

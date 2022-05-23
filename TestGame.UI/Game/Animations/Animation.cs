@@ -15,7 +15,10 @@ public class Animation : IDetailedAnimation
         int nextFrameOffset,
         TimeSpan frameDelay,
         bool loop,
-        AnimationActionType type)
+        AnimationActionType type,
+        bool flipVertically,
+        bool flipHorizontally,
+        bool rotateLeft)
     {
         Image = image;
         FirstFrame = firstFrame;
@@ -24,6 +27,9 @@ public class Animation : IDetailedAnimation
         FrameDelay = frameDelay;
         Loop = loop;
         Type = type;
+        FlipVertically = flipVertically;
+        FlipHorizontally = flipHorizontally;
+        RotateLeft = rotateLeft;
 
         InitFrames();
     }
@@ -35,6 +41,9 @@ public class Animation : IDetailedAnimation
     public TimeSpan FrameDelay { get; }
     public bool Loop { get; }
     public AnimationActionType Type { get; }
+    public bool FlipVertically { get; }
+    public bool FlipHorizontally { get; }
+    public bool RotateLeft { get; }
 
     public Bitmap CurrentFrame => frames[_currentFrame];
 
@@ -56,6 +65,21 @@ public class Animation : IDetailedAnimation
         var cropRect = new Rectangle(frameX, FirstFrame.Y, frame.Width, frame.Height);
 
         graphics.DrawImage(Image, new Rectangle(0, 0, frame.Width, frame.Height), cropRect, GraphicsUnit.Pixel);
+
+        if (RotateLeft)
+        {
+            frame.RotateFlip(RotateFlipType.Rotate270FlipNone);
+        }
+
+        if (FlipVertically)
+        {
+            frame.RotateFlip(RotateFlipType.Rotate180FlipNone);
+        }
+
+        if (FlipHorizontally)
+        {
+            frame.RotateFlip(RotateFlipType.RotateNoneFlipX);
+        }
 
         return frame;
     }

@@ -9,6 +9,9 @@ public interface IAnimationsBuilder
     IAnimationsBuilder WithFrameCount(int frameCount);
     IAnimationsBuilder WithFrameDelay(TimeSpan frameDelay);
     IAnimationsBuilder WithFrameOffset(int frameOffsetInPixels);
+    IAnimationsBuilder FlipVertically();
+    IAnimationsBuilder FlipHorizontally();
+    IAnimationsBuilder RotateLeft();
 }
 
 public interface IAggregatedAnimationBuilder : IAnimationsBuilder
@@ -25,6 +28,9 @@ public class AnimationsBuilder : IAggregatedAnimationBuilder
     private TimeSpan _frameDelay = TimeSpan.FromMilliseconds(500);
     private bool _loop;
     private AnimationActionType _type;
+    private bool _flipVertically;
+    private bool _flipHorizontally;
+    private bool _rotateLeft;
 
     public IAnimationsBuilder FromSprite(Bitmap sprites)
     {
@@ -68,6 +74,24 @@ public class AnimationsBuilder : IAggregatedAnimationBuilder
         return this;
     }
 
+    public IAnimationsBuilder FlipVertically()
+    {
+        _flipVertically = true;
+        return this;
+    }
+
+    public IAnimationsBuilder FlipHorizontally()
+    {
+        _flipHorizontally = true;
+        return this;
+    }
+
+    public IAnimationsBuilder RotateLeft()
+    {
+        _rotateLeft = true;
+        return this;
+    }
+
     public Animation Build()
     {
         if (_sprites == null)
@@ -75,6 +99,6 @@ public class AnimationsBuilder : IAggregatedAnimationBuilder
         if (_firstFrame.Width == 0 || _firstFrame.Height == 0)
             throw new ArgumentException(nameof(_firstFrame));
 
-        return new Animation(_sprites, _firstFrame, _frameCount, _frameOffset, _frameDelay, _loop, _type);
+        return new Animation(_sprites, _firstFrame, _frameCount, _frameOffset, _frameDelay, _loop, _type, _flipVertically, _flipHorizontally, _rotateLeft);
     }
 }

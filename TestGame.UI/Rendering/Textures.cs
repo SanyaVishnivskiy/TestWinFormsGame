@@ -15,5 +15,8 @@
 
         // Enemies
         public static readonly Bitmap Dummy = Resources.enemy_dummy;
+
+        // Weapons
+        public static readonly Bitmap Dagger = Resources.dagger;
     }
 }

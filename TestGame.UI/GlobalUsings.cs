@@ -14,4 +14,6 @@ global using TestGame.UI.Game;
 global using TestGame.UI.Common;
 global using TestGame.UI.Game.Characters.Spawning;
 global using TestGame.UI.Game.Characters.Enemies;
-
+global using TestGame.UI.Game.Weapons;
+global using TestGame.UI.Game.Weapons.Melee;
+global using TestGame.UI.Game.Moving.Behaviours;

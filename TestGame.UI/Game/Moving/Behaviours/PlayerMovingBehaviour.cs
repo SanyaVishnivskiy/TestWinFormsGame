@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Moving;
 
-internal class PlayerMovingStrategy : IWalkable
+internal class PlayerMovingBehaviour : IWalkable
 {
     private readonly HashSet<MoveDirection> _activeMovings = new(4);
     private readonly Dictionary<MoveDirection, float> _adjustedMovings = new(4);
@@ -8,7 +8,7 @@ internal class PlayerMovingStrategy : IWalkable
     public Position CurrentPosition { get; }
     public MovingInfo Moving { get; }
 
-    public PlayerMovingStrategy(Position currentPosition, MovingInfo movingInfo)
+    public PlayerMovingBehaviour(Position currentPosition, MovingInfo movingInfo)
     {
         CurrentPosition = currentPosition;
         Moving = movingInfo;
@@ -97,15 +97,5 @@ internal class PlayerMovingStrategy : IWalkable
         {
             _adjustedMovings.Add(direction.MoveDirection, direction.MaxDistance);
         }
-    }
-}
-
-public class MovingInfo
-{
-    private float _speed;
-    public float Speed
-    {
-        get => _speed * Constants.GameSpeed;
-        set => _speed = value;
     }
 }

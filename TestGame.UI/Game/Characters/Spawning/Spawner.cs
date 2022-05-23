@@ -40,8 +40,9 @@ public abstract class Spawner
         }
 
         var entity = GetNextEntityToSpawn(position);
+        entity.EnsureInitialized();
 
-        _state.AddGameEntity(entity);
+        Spawn(entity);
 
         _entitiesSpawned++;
         _previousSpawnedAt = DateTime.Now;
@@ -101,4 +102,14 @@ public abstract class Spawner
     }
 
     protected abstract Entity GetNextEntityToSpawn(Position position);
+
+    private void Spawn(Entity entity)
+    {
+        BeforeSpawn(entity);
+        _state.AddGameEntity(entity);
+    }
+
+    protected virtual void BeforeSpawn(Entity entity)
+    {
+    }
 }

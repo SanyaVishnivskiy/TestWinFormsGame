@@ -10,6 +10,7 @@ public partial class Form1 : Form
 
     private MovingEngine _movingEngine;
     private SpawningEngine _spawningEngine;
+    private AttackingEngine _attackingEngine;
 
     private Debugger _debuggerWindow;
 
@@ -32,14 +33,24 @@ public partial class Form1 : Form
 
     private void InitGame()
     {
+        var mapsProvider = new InMemoryMapsProvider();
+        var map = mapsProvider.GetMapByName("Default");
+
+        _state.Map = map;
+
+        _spawningEngine = new SpawningEngine(map.PlayerSpawnTile);
+        _spawningEngine.SpawnPlayer();
+        _spawningEngine.InitialSpawn();
+
         _state.Init(ClientSize);
-        _movingEngine = new MovingEngine();
 
         _state.OnAllGameEntitiesChange += OnEntitiesListChange;
         OnEntitiesListChange(this, new GameEntitiesChangeEventArgs(_state.AllGameEntities));
 
-        _spawningEngine = new SpawningEngine();
-        _spawningEngine.InitialSpawn();
+        _movingEngine = new MovingEngine(_state);
+        _attackingEngine = new AttackingEngine(_state);
+
+        _state.Player.Weapon = new Dagger();
     }
 
     private void OnEntitiesListChange(object? sender, GameEntitiesChangeEventArgs e)
@@ -53,6 +64,7 @@ public partial class Form1 : Form
 
         DoMoves();
         SpawnEntities();
+        ProcessAttacks();
         Render(g);
     }
 
@@ -66,6 +78,11 @@ public partial class Form1 : Form
         _movingEngine.Move();
     }
 
+    private void ProcessAttacks()
+    {
+        _attackingEngine.ProcessAttacks();
+    }
+
     private void Render(Graphics g)
     {
         foreach (var groundTile in _state.Map.GetGroundTiles())
@@ -76,6 +93,11 @@ public partial class Form1 : Form
         foreach (var entity in _entitiesToRender)
         {
             DrawDependingOnCamera(g, entity);
+        }
+
+        foreach (var entity in _state.AttackingEntities)
+        {
+            DrawDependingOnCamera(g, entity.Weapon);
         }
 
         foreach (var mapObject in _state.Map.GetMapObjects())
@@ -129,6 +151,10 @@ public partial class Form1 : Form
         if (e.KeyCode == Keys.D)
         {
             _player.StartMoving(MoveDirection.Right);
+        }
+        if (e.KeyCode == Keys.Space)
+        {
+            _player.Attack();
         }
     }
 
