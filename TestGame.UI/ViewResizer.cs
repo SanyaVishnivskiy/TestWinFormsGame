@@ -12,8 +12,8 @@
         public static Size CalculateTextureSize(IRenderable entity)
         {
             return new Size(
-                (int)CalculateWidthProportion(entity.Width),
-                (int)CalculateHeightProportion(entity.Height));
+                (int)CalculateWidthProportion(entity.CurrentTexture.Width),
+                (int)CalculateHeightProportion(entity.CurrentTexture.Height));
         }
 
         public static float CalculateWidthProportion(float value)
