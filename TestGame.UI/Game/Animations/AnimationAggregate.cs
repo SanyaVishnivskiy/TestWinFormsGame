@@ -22,7 +22,7 @@ public class AnimationAggregate : IAnimation
     public Animation CurrentAnimation => _currentAnimation.Animation;
     public Animation Default { get; }
 
-    public Rectangle FirstFrame => _currentAnimation.Animation.FirstFrame;
+    public Rectangle FirstFrame => Default.FirstFrame;
 
     public void ReturnToAnimation(AnimationActionType type)
     {

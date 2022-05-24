@@ -8,8 +8,7 @@
         public override int Width { get; }
         public override int Height { get; }
 
-        public RectangleF Hitbox =>
-            new RectangleF(Position.X, Position.Y + Height / 2, Width, Height / 2);
+        public RectangleF Hitbox { get; }
 
         public Tree(Position position) : base(position)
         {
@@ -20,6 +19,7 @@
 
             Width = Constants.TileWidth * 2;
             Height = Constants.TileHeight * 2 * 2;
+            Hitbox = new RectangleF(Position.X, Position.Y + 3 * Height / 4, Width, Height / 4);
         }
     }
 }

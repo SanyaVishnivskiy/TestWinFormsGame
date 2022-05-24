@@ -75,7 +75,8 @@
         private RectangleF GetInitialHitboxPosition(Entity entity)
         {
             var weaponOffset = GetInitialWeaponOffset(entity);
-            return new RectangleF(weaponOffset.X, weaponOffset.Y, _weapon.Width, _weapon.Height);
+            var weaponRect = GetWeaponRectangle(entity.FaceDirection);
+            return new RectangleF(weaponOffset.X, weaponOffset.Y, weaponRect.Width, weaponRect.Height);
         }
 
         //TODO: refactor this

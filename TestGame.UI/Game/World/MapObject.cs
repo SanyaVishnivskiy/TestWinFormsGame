@@ -13,7 +13,8 @@
 
         public virtual int Width => Animation.FirstFrame.Width;
         public virtual int Height => Animation.FirstFrame.Height;
-        public Bitmap CurrentTexture => Animation.CurrentFrame;
+        public int CurrentTextureWidth => Animation.CalculateFrameWidth(Width);
+        public int CurrentTextureHeight => Animation.CalculateFrameHeight(Height);
 
         public Bitmap GetTexture()
         {

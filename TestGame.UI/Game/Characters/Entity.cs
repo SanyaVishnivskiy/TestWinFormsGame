@@ -2,7 +2,6 @@
 
 public abstract class Entity : IRenderable, IMovable, IAttackable
 {
-
     protected IMovable MovableBehaviour { get; set; }
 
     public Entity(Position position, AnimationAggregate animation)
@@ -23,7 +22,8 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
 
     public int Width { get; protected set; }
     public int Height { get; protected set; }
-    public Bitmap CurrentTexture => Animation.CurrentFrame;
+    public virtual int CurrentTextureWidth => Animation.CalculateFrameWidth(Width);
+    public virtual int CurrentTextureHeight => Animation.CalculateFrameHeight(Height);
 
     public void EnsureInitialized()
     {

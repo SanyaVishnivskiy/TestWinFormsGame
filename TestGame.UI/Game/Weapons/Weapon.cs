@@ -11,7 +11,8 @@
 
         public int Width { get; protected set; }
         public int Height { get; protected set; }
-        public Bitmap CurrentTexture => Animation.CurrentFrame;
+        public int CurrentTextureWidth => (int)(AttackBehavior.Hitbox?.Width ?? 0);
+        public int CurrentTextureHeight => (int)(AttackBehavior.Hitbox?.Height ?? 0);
 
         public abstract WeaponType Type { get; }
 
