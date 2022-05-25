@@ -51,37 +51,16 @@ public class Animation : IDetailedAnimation
     {
         for (int i = 0; i < FrameCount; i++)
         {
-            frames.Add(CropFrame(i));
+            frames.Add(GetFrame(i));
         }
     }
 
-    private Bitmap CropFrame(int i)
+    private Bitmap GetFrame(int i)
     {
-        var frame = new Bitmap(FirstFrame.Width, FirstFrame.Height);
-        using var graphics = Graphics.FromImage(frame);
-
         var offset = i > 0 ? NextFrameOffset : 0;
         var frameX = FirstFrame.X + ((FirstFrame.Width + offset) * i);
-        var cropRect = new Rectangle(frameX, FirstFrame.Y, frame.Width, frame.Height);
-
-        graphics.DrawImage(Image, new Rectangle(0, 0, frame.Width, frame.Height), cropRect, GraphicsUnit.Pixel);
-
-        if (RotateLeft)
-        {
-            frame.RotateFlip(RotateFlipType.Rotate270FlipNone);
-        }
-
-        if (FlipVertically)
-        {
-            frame.RotateFlip(RotateFlipType.Rotate180FlipNone);
-        }
-
-        if (FlipHorizontally)
-        {
-            frame.RotateFlip(RotateFlipType.RotateNoneFlipX);
-        }
-
-        return frame;
+        var frame = new Rectangle(frameX, FirstFrame.Y, FirstFrame.Width, FirstFrame.Height);
+        return AnimationFrames.GetOrCreate(Image, frame, FlipHorizontally, FlipVertically, RotateLeft);
     }
 
     public Bitmap GetNextFrame()
