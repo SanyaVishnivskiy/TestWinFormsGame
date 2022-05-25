@@ -131,7 +131,9 @@ public partial class Form1 : Form
 
     private void timer1_Tick(object sender, EventArgs e)
     {
+        Time.CurrentFrameStartedAt = DateTime.Now;
         Refresh();
+        Time.PreviousFrameFinishedAt = Time.CurrentFrameStartedAt;
     }
 
     private void Form1_KeyDown(object sender, KeyEventArgs e)

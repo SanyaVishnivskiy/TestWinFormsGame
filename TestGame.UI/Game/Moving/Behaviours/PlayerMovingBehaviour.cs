@@ -44,31 +44,28 @@ internal class PlayerMovingBehaviour : IWalkable
 
     private Move MovePosition(Position position)
     {
-        var movings = GetDirectionsAndDistance();
-
-        float distance;
-        if (movings.TryGetValue(MoveDirection.Left, out distance))
+        if (_activeMovings.Contains(MoveDirection.Left))
         {
-            position.AddX(-distance);
+            position.AddX(GetMoveDistance(MoveDirection.Left, -1));
         }
 
-        if (movings.TryGetValue(MoveDirection.Right, out distance))
+        if (_activeMovings.Contains(MoveDirection.Right))
         {
-            position.AddX(distance);
+            position.AddX(GetMoveDistance(MoveDirection.Right, 1));
         }
 
-        if (movings.TryGetValue(MoveDirection.Up, out distance))
+        if (_activeMovings.Contains(MoveDirection.Up))
         {
-            position.AddY(-distance);
+            position.AddY(GetMoveDistance(MoveDirection.Up, -1));
         }
 
-        if (movings.TryGetValue(MoveDirection.Down, out distance))
+        if (_activeMovings.Contains(MoveDirection.Down))
         {
-            position.AddY(distance);
+            position.AddY(GetMoveDistance(MoveDirection.Down, 1));
         }
 
         var direction = new Direction();
-        foreach (var moving in movings.Keys)
+        foreach (var moving in _activeMovings)
         {
             direction.Add(moving);
         }
@@ -76,15 +73,14 @@ internal class PlayerMovingBehaviour : IWalkable
         return new Move(direction, position.Clone());
     }
 
-    private Dictionary<MoveDirection, float> GetDirectionsAndDistance()
+    private float GetMoveDistance(MoveDirection direction, int sign)
     {
-        return _activeMovings
-               .Select(x => new MoveAdjustment(
-                   x,
-                   _adjustedMovings.TryGetValue(x, out var distance)
-                       ? distance
-                       : Moving.Speed))
-               .ToDictionary(x => x.MoveDirection, x => x.MaxDistance);
+        if (_adjustedMovings.TryGetValue(direction, out var distance))
+        {
+            return distance * sign;
+        }
+
+        return MoveDistanceCalculator.Calculate(Moving.Speed * sign);
     }
 
     public void AdjustMovementOnce(MoveAdjustment direction)

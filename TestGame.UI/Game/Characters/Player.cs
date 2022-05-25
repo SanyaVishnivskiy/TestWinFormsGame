@@ -9,7 +9,7 @@ public class Player : Entity, IWalkable, ICollidable
     public Player(Position position) : base(position, EntitiesAnimations.HeroAnimations)
     {
         Moving = new MovingInfo {
-            Speed = 20,
+            Speed = 60,
         };
         MovableBehaviour = new PlayerMovingBehaviour(Position, Moving);
     }

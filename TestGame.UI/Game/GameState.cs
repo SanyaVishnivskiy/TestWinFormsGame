@@ -69,3 +69,13 @@ public class GameEntitiesChangeEventArgs : EventArgs
 
     public IReadOnlyList<object> Entities { get; }
 }
+
+public class Time
+{
+    private static readonly long OneSecond = TimeSpan.FromSeconds(1).Ticks;
+    public static double DeltaTime
+        => Math.Round((double)(CurrentFrameStartedAt.Ticks - PreviousFrameFinishedAt.Ticks) / OneSecond, 3);
+
+    public static DateTime CurrentFrameStartedAt { get; internal set; }
+    public static DateTime PreviousFrameFinishedAt { get; internal set; }
+}

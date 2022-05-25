@@ -39,6 +39,11 @@ public class AnimationAggregate : IAnimation
 
     public void ChangeAnimation(ChangeAnimationOptions options)
     {
+        if (MatchCurrentAnimation(options))
+        {
+            return;
+        }
+
         var typesToTry = new List<AnimationActionType>(options.FallbackAnimations.Count + 2);
         typesToTry.Add(options.ActionType);
         typesToTry.AddRange(options.FallbackAnimations);
@@ -56,6 +61,12 @@ public class AnimationAggregate : IAnimation
                 return;
             }
         }
+    }
+
+    private bool MatchCurrentAnimation(ChangeAnimationOptions options)
+    {
+        return options.ActionType == _currentAnimation.Type
+            && options.Direction == _currentAnimation.Direction;
     }
 }
 
