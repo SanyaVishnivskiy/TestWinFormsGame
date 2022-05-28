@@ -21,6 +21,7 @@
 
         public RectangleF? Hitbox { get; private set; }
         public DateTime? AttackStartedAt { get; protected set; }
+        public Direction AttackDirection { get; protected set; }
         public DateTime? AttackFinishedAt { get; protected set; }
         public TimeSpan AttackDuration { get; protected set; }
         public TimeSpan AttackCoolDown { get; protected set; }
@@ -48,6 +49,7 @@
                 return AttackDetails.None();
             }
 
+            AttackDirection = owner.FaceDirection;
             var position = GetInitialHitboxPosition(owner);
             Hitbox = position;
             AttackStartedAt = DateTime.Now;
@@ -75,7 +77,7 @@
         private RectangleF GetInitialHitboxPosition(Entity entity)
         {
             var weaponOffset = GetInitialWeaponOffset(entity);
-            var weaponRect = GetWeaponRectangle(entity.FaceDirection);
+            var weaponRect = GetWeaponRectangle(AttackDirection);
             return new RectangleF(weaponOffset.X, weaponOffset.Y, weaponRect.Width, weaponRect.Height);
         }
 
@@ -84,21 +86,21 @@
         {
             var halfWidth = entity.Width / 2;
             var halfHeight = entity.Height / 2;
-            var weaponRectangle = GetWeaponRectangle(entity.FaceDirection);
-            if (entity.FaceDirection.Horizontal == MoveDirection.Left)
+            var weaponRectangle = GetWeaponRectangle(AttackDirection);
+            if (AttackDirection.Horizontal == MoveDirection.Left)
             {
                 var x = entity.Position.X + HandLeftXOffset + HandleOffset - weaponRectangle.Width;
                 var y = entity.Position.Y + halfHeight + (halfHeight / HandLeftYOffsetDivider) + HandleOffset
                     - (weaponRectangle.Height / 2);
                 return new PointF(x, y);
             }
-            else if (entity.FaceDirection.Horizontal == MoveDirection.Right)
+            else if (AttackDirection.Horizontal == MoveDirection.Right)
             {
                 var x = entity.Position.X + halfWidth - HandRightXOffset - HandleOffset;
                 var y = entity.Position.Y + halfHeight + (halfHeight / HandRightYOffsetDivider) - (weaponRectangle.Height / 2);
                 return new PointF(x, y);
             }
-            else if (entity.FaceDirection.Vertical == MoveDirection.Up)
+            else if (AttackDirection.Vertical == MoveDirection.Up)
             {
                 var x = entity.Position.X + entity.Width - HandSize - 1 - (weaponRectangle.Width / 2);
                 var y = entity.Position.Y + halfHeight + (halfHeight / HandUpYOffsetDivider) + 1 - weaponRectangle.Height + HandleOffset;
@@ -106,7 +108,7 @@
             }
             else
             {
-                var x = entity.Position.X + halfWidth + (halfWidth / HandDownXOffsetDivider) - 1 - (weaponRectangle.Width / 2);
+                var x = entity.Position.X + halfWidth - (halfWidth / HandDownXOffsetDivider) - 1 - (weaponRectangle.Width / 2);
                 var y = entity.Position.Y + halfHeight + (halfHeight / HandDownYOffsetDivider) - 2;
                 return new PointF(x, y);
             }
@@ -125,11 +127,11 @@
         private void UpdatePosition(Entity entity)
         {
             var hitbox = GetInitialHitboxPosition(entity);
-            hitbox = MoveHitboxDependingOnAttackTime(entity, hitbox);
+            hitbox = MoveHitboxDependingOnAttackTime(hitbox);
             Hitbox = hitbox;
         }
 
-        private RectangleF MoveHitboxDependingOnAttackTime(Entity entity, RectangleF hitbox)
+        private RectangleF MoveHitboxDependingOnAttackTime(RectangleF hitbox)
         {
             var attackTime = DateTime.Now - (AttackStartedAt ?? DateTime.MinValue);
             var halfDuration = AttackDuration / 2;
@@ -140,7 +142,7 @@
                 : 1 - (((float)attackTime.Ticks - halfDuration.Ticks) / halfDuration.Ticks);
             Logger.Log(LogCategory.Attack, $"Position delta: {positionDelta}, attackTime: {attackTime.Ticks}, halfDuration: {halfDuration.Ticks}");
 
-            var positionOffset = GetWeaponOffsetFromInitial(hitbox, entity.FaceDirection, positionDelta);
+            var positionOffset = GetWeaponOffsetFromInitial(hitbox, AttackDirection, positionDelta);
             return new RectangleF(positionOffset, hitbox.Size);
         }
 
