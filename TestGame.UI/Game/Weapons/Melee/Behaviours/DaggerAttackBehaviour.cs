@@ -134,9 +134,12 @@
             var attackTime = DateTime.Now - (AttackStartedAt ?? DateTime.MinValue);
             var halfDuration = AttackDuration / 2;
             var isFirstHalf = attackTime <= halfDuration;
+
             float positionDelta = isFirstHalf
-                ? attackTime.Ticks / halfDuration.Ticks
-                : 1 - (attackTime.Ticks / halfDuration.Ticks);
+                ? (float)attackTime.Ticks / halfDuration.Ticks
+                : 1 - (((float)attackTime.Ticks - halfDuration.Ticks) / halfDuration.Ticks);
+            Logger.Log(LogCategory.Attack, $"Position delta: {positionDelta}, attackTime: {attackTime.Ticks}, halfDuration: {halfDuration.Ticks}");
+
             var positionOffset = GetWeaponOffsetFromInitial(hitbox, entity.FaceDirection, positionDelta);
             return new RectangleF(positionOffset, hitbox.Size);
         }
@@ -145,19 +148,19 @@
         {
             if (faceDirection.Horizontal == MoveDirection.Left)
             {
-                return new PointF(hitbox.X - HandLeftXMaxLength * positionDelta, hitbox.Y);
+                return new PointF(hitbox.X - (int)(HandLeftXMaxLength * positionDelta), hitbox.Y);
             }
             else if (faceDirection.Horizontal == MoveDirection.Right)
             {
-                return new PointF(hitbox.X + HandRightXMaxLength * positionDelta, hitbox.Y);
+                return new PointF(hitbox.X + (int)(HandRightXMaxLength * positionDelta), hitbox.Y);
             }
             else if (faceDirection.Vertical == MoveDirection.Up)
             {
-                return new PointF(hitbox.X, hitbox.Y - HandUpYMaxLength * positionDelta);
+                return new PointF(hitbox.X, hitbox.Y - (int)(HandUpYMaxLength * positionDelta));
             }
             else
             {
-                return new PointF(hitbox.X, hitbox.Y + HandDownYMaxLength * positionDelta);
+                return new PointF(hitbox.X, hitbox.Y + (int)(HandDownYMaxLength * positionDelta));
             }
         }
     }

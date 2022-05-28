@@ -29,7 +29,7 @@ public partial class Form1 : Form
         _debuggerWindow.Show();
 
         Logger.AddDestination(_debuggerWindow);
-        Logger.AddLoggerFilter((category, _) => category == LogCategory.Messuring);
+        Logger.AddLoggerFilter((category, _) => category == LogCategory.Attack);
     }
 
     private void InitGame()

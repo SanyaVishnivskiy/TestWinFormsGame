@@ -63,4 +63,5 @@ public enum LogCategory
     Movement,
     Rendering,
     Messuring,
+    Attack,
 }
