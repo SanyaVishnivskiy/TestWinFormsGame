@@ -2,8 +2,6 @@ namespace TestGame.UI;
 
 public partial class Form1 : Form
 {
-    private IReadOnlyList<IRenderable> _entitiesToRender;
-    private Dictionary<Bitmap, Bitmap> _bitmapsCache = new();
 
     private static GameState _state => GameState.Instance;
     private Player _player => _state.Player;
@@ -11,6 +9,7 @@ public partial class Form1 : Form
     private MovingEngine _movingEngine;
     private SpawningEngine _spawningEngine;
     private AttackingEngine _attackingEngine;
+    private Renderer _renderer;
 
     private Debugger _debuggerWindow;
 
@@ -45,18 +44,11 @@ public partial class Form1 : Form
 
         _state.Init(ClientSize);
 
-        _state.OnAllGameEntitiesChange += OnEntitiesListChange;
-        OnEntitiesListChange(this, new GameEntitiesChangeEventArgs(_state.AllGameEntities));
-
         _movingEngine = new MovingEngine(_state);
         _attackingEngine = new AttackingEngine(_state);
 
         _state.Player.Weapon = new Dagger();
-    }
-
-    private void OnEntitiesListChange(object? sender, GameEntitiesChangeEventArgs e)
-    {
-        _entitiesToRender = e.Entities.OfType<IRenderable>().ToList();
+        _renderer = new Renderer(_state);
     }
 
     private void Form1_Paint(object sender, PaintEventArgs e)
@@ -93,48 +85,7 @@ public partial class Form1 : Form
 
     private void Render(Graphics g)
     {
-        foreach (var groundTile in _state.Map.GetGroundTiles())
-        {
-            DrawDependingOnCamera(g, groundTile);
-        }
-
-        foreach (var entity in _entitiesToRender)
-        {
-            DrawDependingOnCamera(g, entity);
-        }
-
-        foreach (var entity in _state.AttackingEntities)
-        {
-            DrawDependingOnCamera(g, entity.Weapon);
-        }
-
-        foreach (var mapObject in _state.Map.GetMapObjects())
-        {
-            DrawDependingOnCamera(g, mapObject);
-        }
-    }
-
-    private void DrawDependingOnCamera(Graphics g, IRenderable entity)
-    {
-        var position = _state.Camera.ToCameraPosition(entity.Position);
-        var texture = GetTexture(entity);
-        g.DrawImage(texture, position.X, position.Y);
-    }
-
-    private Bitmap GetTexture(IRenderable entity)
-    {
-        var texture = entity.GetTexture();
-
-        if (_bitmapsCache.TryGetValue(texture, out var cachedTexture))
-        {
-            return cachedTexture;
-        }
-
-        var newSize = _state.Camera.CalculateTextureSize(new Size(entity.CurrentTextureWidth, entity.CurrentTextureHeight));
-        var result = texture.Resize(newSize);
-        _bitmapsCache.Add(texture, result);
-
-        return result;
+        _renderer.Render(g);
     }
 
     private void timer1_Tick(object sender, EventArgs e)
@@ -191,7 +142,7 @@ public partial class Form1 : Form
     private void Form1_Resize(object sender, EventArgs e)
     {
         _state.Camera.Resize(ClientSize);
-        _bitmapsCache.Clear();
+        _renderer.ClearBitmapCache();
     }
 
     /// <summary>

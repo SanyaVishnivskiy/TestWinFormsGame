@@ -12,7 +12,7 @@ public class Camera
 
     public Position Position => _entity.Position;
 
-    public Position CentralPosition => new Position(
+    public Point CentralPosition => new Point(
         ClientSize.Width / 2 - Zoom(Position.X) - Zoom(_entity.CurrentTextureWidth) / 2,
         ClientSize.Height / 2 - Zoom(Position.Y) - Zoom(_entity.CurrentTextureHeight) / 2);
 
@@ -26,12 +26,15 @@ public class Camera
         _resizeCoefficient = (int)Math.Round((double)ClientSize.Width / Constants.DefaultWindowWidth);
     }
 
-    public Position ToCameraPosition(Position position)
+    public Point ToCameraPosition(Position position)
+        => ToCameraPosition(new Point((int)position.X, (int)position.Y));
+
+    public Point ToCameraPosition(Point position)
     {
         var center = CentralPosition;
         var x = Zoom(position.X) + center.X;
         var y = Zoom(position.Y) + center.Y;
-        return new Position(x, y);
+        return new Point(x, y);
     }
 
     private int Zoom(float value) => CalculateResizeProportion(value);

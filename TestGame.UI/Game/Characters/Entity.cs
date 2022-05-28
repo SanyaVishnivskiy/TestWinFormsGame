@@ -12,6 +12,7 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
         Height = Animation.FirstFrame.Height;
     }
 
+    public Health Health { get; protected set; }
     public Position Position { get; }
     public Position CurrentPosition => Position;
     public Direction FaceDirection { get; protected set; }
@@ -50,6 +51,10 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
         if (Position is null)
         {
             throw new ArgumentNullException(nameof(Position));
+        }
+        if (Health is null)
+        {
+            throw new ArgumentNullException(nameof(Health));
         }
         EnsureEntityUniqueInitialized();
     }
