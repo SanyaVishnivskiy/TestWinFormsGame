@@ -29,6 +29,7 @@ public partial class Form1 : Form
         _debuggerWindow.Show();
 
         Logger.AddDestination(_debuggerWindow);
+        Logger.AddLoggerFilter((category, _) => category == LogCategory.Messuring);
     }
 
     private void InitGame()
@@ -62,10 +63,17 @@ public partial class Form1 : Form
     {
         Graphics g = e.Graphics;
 
-        DoMoves();
-        SpawnEntities();
-        ProcessAttacks();
-        Render(g);
+        //Logger.Messure("Processing", () =>
+        //{
+            DoMoves();
+            SpawnEntities();
+            ProcessAttacks();
+        //});
+
+        //Logger.Messure("Rendering", () =>
+        //{
+            Render(g);
+        //});
     }
 
     private void SpawnEntities()
@@ -122,8 +130,8 @@ public partial class Form1 : Form
             return cachedTexture;
         }
 
-        var result = new Bitmap(texture, ViewResizer.CalculateTextureSize(entity));
-
+        var newSize = _state.Camera.CalculateTextureSize(new Size(entity.CurrentTextureWidth, entity.CurrentTextureHeight));
+        var result = texture.Resize(newSize);
         _bitmapsCache.Add(texture, result);
 
         return result;
@@ -182,7 +190,7 @@ public partial class Form1 : Form
 
     private void Form1_Resize(object sender, EventArgs e)
     {
-        _state.Camera.ClientSize = ClientSize;
+        _state.Camera.Resize(ClientSize);
         _bitmapsCache.Clear();
     }
 

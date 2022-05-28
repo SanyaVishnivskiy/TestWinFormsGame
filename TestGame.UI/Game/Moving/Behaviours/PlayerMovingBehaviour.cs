@@ -34,7 +34,7 @@ internal class PlayerMovingBehaviour : IWalkable
     {
         var move = MovePosition(CurrentPosition);
 
-        Logger.Log($"Active Directions: {string.Join(", ", _activeMovings)}," +
+        Logger.Log(LogCategory.Movement, $"Active Directions: {string.Join(", ", _activeMovings)}," +
             $" adjusted: {string.Join(", ", _adjustedMovings)}");
 
         _adjustedMovings.Clear();

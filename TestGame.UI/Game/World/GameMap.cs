@@ -12,6 +12,7 @@ public interface IGameMap
     GroundTile GetGroundTile(int x, int y);
     bool CheckValidSpawnWithWater(Point point);
     Point CalculateTilePositionWithWaterInTiles(Point point);
+    Size GetSizeInPixels();
 }
 
 internal class GameMap : IGameMap
@@ -20,6 +21,8 @@ internal class GameMap : IGameMap
 
     public int Width => _groundLayer.GetLength(0);
     public int Height => _groundLayer.GetLength(1);
+    public int WidthWithWater => GroundLayer.GetLength(1);
+    public int HeightWithWater => GroundLayer.GetLength(0);
 
     private int[,] _groundLayer { get; set; }
     private int[,] _objectLayer { get; set; }
@@ -152,5 +155,12 @@ internal class GameMap : IGameMap
         }
 
         return true;
+    }
+
+    public Size GetSizeInPixels()
+    {
+        return new Size(
+            WidthWithWater * Constants.TileWidth,
+            HeightWithWater * Constants.TileHeight);
     }
 }
