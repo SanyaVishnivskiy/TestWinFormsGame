@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Characters;
 
-public abstract class Entity : IRenderable, IMovable, IAttackable
+public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTrackable
 {
     protected IMovable MovableBehaviour { get; set; }
 
@@ -10,8 +10,10 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
         Animation = animation;
         Width = Animation.FirstFrame.Width;
         Height = Animation.FirstFrame.Height;
+        Hitbox = new RectangleF(Position.X, Position.Y, Width, Height);
     }
 
+    public RectangleF Hitbox { get; }
     public Health Health { get; protected set; }
     public Position Position { get; }
     public Position CurrentPosition => Position;
@@ -62,7 +64,7 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
     protected virtual void EnsureEntityUniqueInitialized()
     {
     }
-    
+
     public Bitmap GetTexture()
     {
         return Animation.GetNextFrame();
@@ -160,4 +162,11 @@ public abstract class Entity : IRenderable, IMovable, IAttackable
     {
         Animation.ReturnToAnimation(AnimationActionType.Move);
     }
+
+    public void TakeDamage(int damage)
+    {
+        Health.Damage(damage);
+    }
+
+    public abstract bool IsEnemy(Entity e);
 }

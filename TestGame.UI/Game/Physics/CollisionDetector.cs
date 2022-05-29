@@ -9,7 +9,7 @@ public class CollisionDetector
         _map = map;
     }
 
-    public List<Collision> CalculateCollisions(ICollidable entity, Move move)
+    public List<Collision> CalculateCollisions(ICollisionTrackable entity, Move move)
     {
         var collidable = new OverridenCollidableAdapter(entity, move);
         var gameEntities = GameState.Instance.AllGameEntities
@@ -57,7 +57,16 @@ public class CollisionDetector
 
     private IEnumerable<Collision> CalculateCollisions(
         OverridenCollidableAdapter entity,
-        IEnumerable<ICollidable> otherEntities)
+        IEnumerable<object> objects)
+    {
+        var collidableObjects = objects.Where(x => x is not null).OfType<ICollisionTrackable>();
+
+        return CalculateCollisions(entity, collidableObjects);
+    }
+
+    private IEnumerable<Collision> CalculateCollisions(
+        OverridenCollidableAdapter entity,
+        IEnumerable<ICollisionTrackable> otherEntities)
     {
         var collisions = new List<Collision>();
 
@@ -76,7 +85,7 @@ public class CollisionDetector
 
     private (bool, List<Direction>) CheckCollides(
         OverridenCollidableAdapter collidable,
-        ICollidable anotherCollidable)
+        ICollisionTrackable anotherCollidable)
     {
         if (!CheckHitboxesCollides(collidable.NewHitbox, anotherCollidable.Hitbox))
         {
@@ -117,7 +126,7 @@ public class CollisionDetector
 
     public bool CheckCollisionOnDirection(
         OverridenCollidableAdapter collidable,
-        ICollidable anotherCollidable,
+        ICollisionTrackable anotherCollidable,
         MoveDirection direction)
     {
         if (direction == MoveDirection.None)
@@ -152,18 +161,24 @@ public class CollisionDetector
 
         return CalculateCollisionsIfCollidable(entity, mapObjects);
     }
+
+    public IEnumerable<Collision> CheckCollides(ICollisionTrackable trackable, Move move, IReadOnlyList<object> entities)
+    {
+        var adapter = new OverridenCollidableAdapter(trackable, move);
+        return CalculateCollisions(adapter, entities);
+    }
 }
 
 public class Collision
 {
-    public Collision(ICollidable entity, ICollidable anotherEntity, Direction direction)
+    public Collision(ICollisionTrackable entity, ICollisionTrackable anotherEntity, Direction direction)
     {
         Entity = entity;
         AnotherEntity = anotherEntity;
         Direction = direction;
     }
 
-    public ICollidable Entity { get; }
-    public ICollidable AnotherEntity { get; }
+    public ICollisionTrackable Entity { get; }
+    public ICollisionTrackable AnotherEntity { get; }
     public Direction Direction { get; }
 }

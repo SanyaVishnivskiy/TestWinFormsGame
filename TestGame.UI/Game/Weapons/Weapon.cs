@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Weapons
 {
-    public abstract class Weapon : IRenderable
+    public abstract class Weapon : IRenderable, ICollisionTrackable
     {
         public Weapon()
         {
@@ -31,14 +31,17 @@
         {
             get
             {
-                if (AttackBehavior.Hitbox is null)
+                if (Hitbox.IsEmpty)
                 {
                     return null;
                 }
 
-                return new Position(AttackBehavior.Hitbox.Value.X, AttackBehavior.Hitbox.Value.Y);
+                return new Position(Hitbox.X, Hitbox.Y);
             }
         }
+        public Direction AttackDirection => AttackBehavior.AttackDirection;
+
+        public RectangleF Hitbox => AttackBehavior.Hitbox ?? RectangleF.Empty;
 
         public AttackDetails TryBeginAttack(Entity owner)
         {

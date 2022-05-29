@@ -24,4 +24,9 @@ public class Player : Entity, IWalkable, ICollidable
     {
         WalkableBehaviour.FinishMoving(direction);
     }
+
+    public override bool IsEnemy(Entity e)
+    {
+        return e is Enemy;
+    }
 }

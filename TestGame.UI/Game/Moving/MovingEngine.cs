@@ -141,7 +141,7 @@ public class MovingEngine : IDisposable
             .ToDictionary(x => x.Key, x => x.Select(a => a.Distance).ToHashSet());
     }
 
-    private float CalculateDistanceToObstacle(MoveDirection direction, ICollidable collidable, ICollidable anotherCollidable)
+    private float CalculateDistanceToObstacle(MoveDirection direction, ICollisionTrackable collidable, ICollisionTrackable anotherCollidable)
     {
         return DirectionCalculator.CalculateDistanceToObstacle(direction, collidable.Hitbox, anotherCollidable.Hitbox);
     }

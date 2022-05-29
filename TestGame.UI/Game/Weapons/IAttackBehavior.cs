@@ -4,6 +4,7 @@
     {
         bool Attacking { get; }
         RectangleF? Hitbox { get; }
+        Direction AttackDirection { get; }
         bool AttackExpired { get; }
         AttackDetails TryBeginAttack(Entity owner);
         AttackDetails AttackTick(Entity owner);
