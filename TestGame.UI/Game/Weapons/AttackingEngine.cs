@@ -2,6 +2,7 @@
 
 public class AttackingEngine : IDisposable
 {
+    private readonly Dictionary<Guid, HashSet<Guid>> _attackedEntitiesByWeapon = new();
     private readonly GameState _state;
 
     private IReadOnlyList<Entity> _attackingEntities;
@@ -34,12 +35,23 @@ public class AttackingEngine : IDisposable
         {
             var previousPosition = entity.CurrentPosition.Clone();
 
-            entity.AttackTick();
+            var details = entity.AttackTick();
+
+            if (details is null)
+            {
+                continue;
+            }
+
+            if (details.AttackFinished)
+            {
+                _attackedEntitiesByWeapon.Remove(details.AttackId);
+                continue;
+            }
 
             if (entity.Weapon.Attacking)
             {
                 var currentPosition = entity.CurrentPosition.Clone();
-                attacks.Add(new AttackInfo(entity, entity.Weapon.AttackDirection, previousPosition, currentPosition));
+                attacks.Add(new AttackInfo(details.AttackId, entity, previousPosition, currentPosition));
             }
         }
 
@@ -59,8 +71,31 @@ public class AttackingEngine : IDisposable
             {
                 var target = (Entity)collision.AnotherEntity;
                 var damage = CalculateDamage(attack, collision);
-                target.TakeDamage(damage);
+                ApplyDamageIfNewAttack(attack, target, damage);
             }
+        }
+    }
+
+    private void ApplyDamageIfNewAttack(AttackInfo attack, Entity target, int damage)
+    {
+        var attackedAnyone = _attackedEntitiesByWeapon.TryGetValue(attack.AttackId, out var damagedEnemies);
+        if (attackedAnyone)
+        {
+            if (damagedEnemies.Contains(target.Id))
+            {
+                return;
+            }
+        }
+
+        target.TakeDamage(damage);
+
+        if (attackedAnyone)
+        {
+            damagedEnemies.Add(target.Id);
+        }
+        else
+        {
+            _attackedEntitiesByWeapon.Add(attack.AttackId, new HashSet<Guid> { target.Id });
         }
     }
 
@@ -89,16 +124,17 @@ public class AttackingEngine : IDisposable
 
 public class AttackInfo
 {
+    public Guid AttackId { get; }
     public Entity Attacker { get; }
     public Weapon Weapon => Attacker.Weapon;
-    public Direction AttackDirection { get; }
+    public Direction AttackDirection => Weapon.AttackDirection;
     public Position OldPosition { get; }
     public Position NewPosition { get; }
 
-    public AttackInfo(Entity attacker, Direction direction, Position oldPosition, Position newPosition)
+    public AttackInfo(Guid id, Entity attacker, Position oldPosition, Position newPosition)
     {
+        AttackId = id;
         Attacker = attacker;
-        AttackDirection = direction;
         OldPosition = oldPosition;
         NewPosition = newPosition;
     }

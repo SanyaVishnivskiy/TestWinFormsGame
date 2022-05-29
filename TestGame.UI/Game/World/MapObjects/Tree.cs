@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.World.MapObjects
 {
-    public class Tree : MapObject, ICollisionTrackable
+    public class Tree : MapObject, ICollidable
     {
         public override MapObjectType Type => MapObjectType.Tree;
 

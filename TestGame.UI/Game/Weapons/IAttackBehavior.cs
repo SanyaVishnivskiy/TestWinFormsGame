@@ -12,35 +12,37 @@
 
     public class AttackDetails
     {
+        public Guid AttackId { get; }
         public bool AttackStarted { get; }
         public bool AttackFinished { get; }
         public bool AttackInProgress { get; }
 
-        private AttackDetails(bool attackStarted, bool attackFinished, bool attacking)
+        private AttackDetails(Guid id, bool attackStarted, bool attackFinished, bool attacking)
         {
+            AttackId = id;
             AttackStarted = attackStarted;
             AttackFinished = attackFinished;
             AttackInProgress = attacking;
         }
 
-        public static AttackDetails Started()
+        public static AttackDetails Started(Guid id)
         {
-            return new AttackDetails(true, false, false);
+            return new AttackDetails(id, true, false, false);
         }
 
-        public static AttackDetails Finished()
+        public static AttackDetails Finished(Guid id)
         {
-            return new AttackDetails(false, true, false);
+            return new AttackDetails(id, false, true, false);
         }
 
         public static AttackDetails None()
         {
-            return new AttackDetails(false, false, false);
+            return new AttackDetails(Guid.Empty, false, false, false);
         }
 
-        public static AttackDetails Attacking()
+        public static AttackDetails Attacking(Guid id)
         {
-            return new AttackDetails(false, false, true);
+            return new AttackDetails(id, false, false, true);
         }
     }
 }

@@ -6,7 +6,7 @@
         {
             Moving = MovingInfo.None;
             MovableBehaviour = new NoMovingBehaviour(position);
-            Health = new Health(100, new Size(Width, Height));
+            Health = new Health(10, new Size(Width, Height));
         }
     }
 }

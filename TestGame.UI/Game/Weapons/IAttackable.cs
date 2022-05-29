@@ -2,7 +2,7 @@
 {
     public interface IAttackable
     {
-        void Attack();
-        void AttackTick();
+        AttackDetails? Attack();
+        AttackDetails? AttackTick();
     }
 }

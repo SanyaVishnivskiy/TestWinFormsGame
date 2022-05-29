@@ -2,7 +2,6 @@ namespace TestGame.UI;
 
 public partial class Form1 : Form
 {
-
     private static GameState _state => GameState.Instance;
     private Player _player => _state.Player;
 

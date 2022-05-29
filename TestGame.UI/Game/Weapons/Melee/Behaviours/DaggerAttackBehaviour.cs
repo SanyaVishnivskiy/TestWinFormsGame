@@ -19,6 +19,7 @@
 
         public const int HandleOffset = 2;
 
+        public Guid AttackId { get; protected set; }
         public RectangleF? Hitbox { get; private set; }
         public DateTime? AttackStartedAt { get; protected set; }
         public Direction AttackDirection { get; protected set; }
@@ -41,7 +42,7 @@
         {
             if (Attacking)
             {
-                return AttackDetails.Attacking();
+                return AttackDetails.Attacking(AttackId);
             }
 
             if (AttackFinishedAt.HasValue && DateTime.Now - AttackFinishedAt.Value < AttackCoolDown)
@@ -53,7 +54,8 @@
             var position = GetInitialHitboxPosition(owner);
             Hitbox = position;
             AttackStartedAt = DateTime.Now;
-            return AttackDetails.Started();
+            AttackId = Guid.NewGuid();
+            return AttackDetails.Started(AttackId);
         }
 
         public AttackDetails AttackTick(Entity owner)
@@ -67,11 +69,13 @@
             {
                 Hitbox = null;
                 AttackStartedAt = null;
-                return AttackDetails.Finished();
+                var attackId = AttackId;
+                AttackId = Guid.Empty;
+                return AttackDetails.Finished(attackId);
             }
 
             UpdatePosition(owner);
-            return AttackDetails.Attacking();
+            return AttackDetails.Attacking(AttackId);
         }
 
         private RectangleF GetInitialHitboxPosition(Entity entity)

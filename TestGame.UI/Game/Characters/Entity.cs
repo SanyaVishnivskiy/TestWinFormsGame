@@ -2,6 +2,7 @@
 
 public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTrackable
 {
+    public Guid Id { get; } = Guid.NewGuid();
     protected IMovable MovableBehaviour { get; set; }
 
     public Entity(Position position, AnimationAggregate animation)
@@ -107,11 +108,11 @@ public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTra
         Animation.ChangeAnimation(options);
     }
 
-    public void Attack()
+    public AttackDetails? Attack()
     {
         if (Weapon is null)
         {
-            return;
+            return null;
         }
 
         var details = Weapon.TryBeginAttack(this);
@@ -120,6 +121,8 @@ public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTra
             StartAttackAnimation();
             GameState.Instance.MarkAttacking(this);
         }
+
+        return details;
     }
 
     private void StartAttackAnimation()
@@ -143,11 +146,11 @@ public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTra
         return FaceDirection.Vertical;
     }
 
-    public void AttackTick()
+    public AttackDetails? AttackTick()
     {
         if (Weapon is null)
         {
-            return;
+            return null;
         }
         
         var details = Weapon.AttackTick(this);
@@ -156,6 +159,8 @@ public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTra
             EndAttackAnimation();
             GameState.Instance.MarkAttackFinished(this);
         }
+
+        return details;
     }
 
     private void EndAttackAnimation()
