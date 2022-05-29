@@ -12,7 +12,7 @@ public class Player : Entity, IWalkable, ICollidable
             Speed = 150,
         };
         MovableBehaviour = new PlayerMovingBehaviour(Position, Moving);
-        Health = new Health(6, 10, new Size(Width, Height));
+        Health = new Health(10, new Size(Width, Height));
     }
 
     public void StartMoving(MoveDirection direction)

@@ -174,4 +174,8 @@ public abstract class Entity : IRenderable, IMovable, IAttackable, ICollisionTra
     }
 
     public abstract bool IsEnemy(Entity e);
+
+    public virtual void Die()
+    {
+    }
 }

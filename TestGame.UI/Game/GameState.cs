@@ -37,6 +37,12 @@ public class GameState
         OnAllGameEntitiesChange?.Invoke(this, new GameEntitiesChangeEventArgs(_allGameEntities));
     }
 
+    public void RemoveGameEntity(object entity)
+    {
+        _allGameEntities.Remove(entity);
+        OnAllGameEntitiesChange?.Invoke(this, new GameEntitiesChangeEventArgs(_allGameEntities));
+    }
+
     public void MarkAttacking(Entity entity)
     {
         _attackingEntities.Add(entity);

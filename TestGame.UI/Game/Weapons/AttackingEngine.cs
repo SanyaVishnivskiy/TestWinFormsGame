@@ -72,6 +72,11 @@ public class AttackingEngine : IDisposable
                 var target = (Entity)collision.AnotherEntity;
                 var damage = CalculateDamage(attack, collision);
                 ApplyDamageIfNewAttack(attack, target, damage);
+                if (target.Health.IsDead)
+                {
+                    target.Die();
+                    _state.RemoveGameEntity(target);
+                }
             }
         }
     }
