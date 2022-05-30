@@ -1,6 +1,6 @@
 ﻿namespace TestGame.UI.Game.Weapons.Melee
 {
-    public class DaggerAttackBehaviour : IAttackBehavior
+    public class DaggerAttackBehaviour : AttackBehaviourBase
     {
         public const int HandLeftXOffset = 5;
         public const int HandLeftYOffsetDivider = 4;
@@ -10,7 +10,7 @@
         public const int HandDownXOffsetDivider = 2;
         public const int HandDownYOffsetDivider = 2;
 
-        public const int HandLeftXMaxLength = 4;
+        public const int HandLeftXMaxLength = 5;
         public const int HandRightXMaxLength = 20;
         public const int HandUpYMaxLength = 22;
         public const int HandDownYMaxLength = 9;
@@ -19,70 +19,16 @@
 
         public const int HandleOffset = 2;
 
-        public Guid AttackId { get; protected set; }
-        public RectangleF? Hitbox { get; private set; }
-        public DateTime? AttackStartedAt { get; protected set; }
-        public Direction AttackDirection { get; protected set; }
-        public DateTime? AttackFinishedAt { get; protected set; }
-        public TimeSpan AttackDuration { get; protected set; }
-        public TimeSpan AttackCoolDown { get; protected set; }
-        public bool Attacking => Hitbox is not null;
-        public bool AttackExpired => DateTime.Now - (AttackStartedAt ?? DateTime.MinValue) > AttackDuration;
-        
-        private readonly Weapon _weapon;
-
-        public DaggerAttackBehaviour(Weapon weapon)
+        public DaggerAttackBehaviour(Weapon weapon) : base(weapon)
         {
-            _weapon = weapon;
-            AttackDuration = weapon.AttackDuration;
-            AttackCoolDown = weapon.AttackCoolDown;
         }
 
-        public AttackDetails TryBeginAttack(Entity owner)
-        {
-            if (Attacking)
-            {
-                return AttackDetails.Attacking(AttackId);
-            }
-
-            if (AttackFinishedAt.HasValue && DateTime.Now - AttackFinishedAt.Value < AttackCoolDown)
-            {
-                return AttackDetails.None();
-            }
-
-            AttackDirection = owner.FaceDirection;
-            var position = GetInitialHitboxPosition(owner);
-            Hitbox = position;
-            AttackStartedAt = DateTime.Now;
-            AttackId = Guid.NewGuid();
-            return AttackDetails.Started(AttackId);
-        }
-
-        public AttackDetails AttackTick(Entity owner)
-        {
-            if (!Attacking)
-            {
-                return AttackDetails.None();
-            }
-
-            if (AttackExpired)
-            {
-                Hitbox = null;
-                AttackStartedAt = null;
-                var attackId = AttackId;
-                AttackId = Guid.Empty;
-                return AttackDetails.Finished(attackId);
-            }
-
-            UpdatePosition(owner);
-            return AttackDetails.Attacking(AttackId);
-        }
-
-        private RectangleF GetInitialHitboxPosition(Entity entity)
+        protected override RectangleF GetInitialHitboxPosition(Entity entity)
         {
             var weaponOffset = GetInitialWeaponOffset(entity);
+            var weaponPosition = new PointF(entity.Position.X + weaponOffset.X, entity.Position.Y + weaponOffset.Y);
             var weaponRect = GetWeaponRectangle(AttackDirection);
-            return new RectangleF(weaponOffset.X, weaponOffset.Y, weaponRect.Width, weaponRect.Height);
+            return new RectangleF(weaponPosition, weaponRect.Size);
         }
 
         //TODO: refactor this
@@ -93,27 +39,26 @@
             var weaponRectangle = GetWeaponRectangle(AttackDirection);
             if (AttackDirection.Horizontal == MoveDirection.Left)
             {
-                var x = entity.Position.X + HandLeftXOffset + HandleOffset - weaponRectangle.Width;
-                var y = entity.Position.Y + halfHeight + (halfHeight / HandLeftYOffsetDivider) + HandleOffset
-                    - (weaponRectangle.Height / 2);
+                var x = HandLeftXOffset + HandleOffset - weaponRectangle.Width;
+                var y = halfHeight + (halfHeight / HandLeftYOffsetDivider) + HandleOffset - (weaponRectangle.Height / 2);
                 return new PointF(x, y);
             }
             else if (AttackDirection.Horizontal == MoveDirection.Right)
             {
-                var x = entity.Position.X + halfWidth - HandRightXOffset - HandleOffset;
-                var y = entity.Position.Y + halfHeight + (halfHeight / HandRightYOffsetDivider) - (weaponRectangle.Height / 2);
+                var x = halfWidth - HandRightXOffset - HandleOffset;
+                var y = halfHeight + (halfHeight / HandRightYOffsetDivider) - (weaponRectangle.Height / 2);
                 return new PointF(x, y);
             }
             else if (AttackDirection.Vertical == MoveDirection.Up)
             {
-                var x = entity.Position.X + entity.Width - HandSize - 1 - (weaponRectangle.Width / 2);
-                var y = entity.Position.Y + halfHeight + (halfHeight / HandUpYOffsetDivider) + 1 - weaponRectangle.Height + HandleOffset;
+                var x = entity.Width - HandSize - 1 - (weaponRectangle.Width / 2);
+                var y = halfHeight + (halfHeight / HandUpYOffsetDivider) + 1 - weaponRectangle.Height + HandleOffset;
                 return new PointF(x, y);
             }
             else
             {
-                var x = entity.Position.X + halfWidth - (halfWidth / HandDownXOffsetDivider) - 1 - (weaponRectangle.Width / 2);
-                var y = entity.Position.Y + halfHeight + (halfHeight / HandDownYOffsetDivider) - 2;
+                var x = halfWidth - (halfWidth / HandDownXOffsetDivider) - 1 - (weaponRectangle.Width / 2);
+                var y = halfHeight + (halfHeight / HandDownYOffsetDivider) - 2;
                 return new PointF(x, y);
             }
         }
@@ -122,17 +67,16 @@
         {
             if (faceDirection.IsHorizontal)
             {
-                return new RectangleF(0, 0, _weapon.Height, _weapon.Width);
+                return new RectangleF(0, 0, Weapon.Height, Weapon.Width);
             }
 
-            return new RectangleF(0, 0, _weapon.Width, _weapon.Height);
+            return new RectangleF(0, 0, Weapon.Width, Weapon.Height);
         }
 
-        private void UpdatePosition(Entity entity)
+        protected override RectangleF GetWeaponHitbox(Entity entity)
         {
             var hitbox = GetInitialHitboxPosition(entity);
-            hitbox = MoveHitboxDependingOnAttackTime(hitbox);
-            Hitbox = hitbox;
+            return MoveHitboxDependingOnAttackTime(hitbox);
         }
 
         private RectangleF MoveHitboxDependingOnAttackTime(RectangleF hitbox)
