@@ -46,7 +46,8 @@ public partial class Form1 : Form
         _movingEngine = new MovingEngine(_state);
         _attackingEngine = new AttackingEngine(_state);
 
-        _state.Player.Weapon = new Dagger();
+        _state.Player.Weapon = new LightenedDagger();
+
         _renderer = new Renderer(_state);
     }
 
